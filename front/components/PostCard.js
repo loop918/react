@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { RetweetOutlined, HeartTwoTone, HeartOutlined, MessageOutlined, EllipsisOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import Link from 'next/link';
-import { useSelector } from 'react-redux';
-
+import { useSelector , useDispatch} from 'react-redux';
+import { REMOVE_POST_REQUEST  } from '../reducers/post';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
 import PostImages from './PostImages';
@@ -17,7 +17,9 @@ const CardWrapper = styled.div`
 
 const PostCard = ({ post }) => {
   const [commentFormOpened, setCommentFormOpened] = useState(false);
+  const dispatch = useDispatch();
   const id = useSelector((state) => state.user.me && state.user.me.id);
+  const {removePostLoading} = useSelector((state) => state.post);
 
   const [liked, setLiked] = useState(false);
 
@@ -29,6 +31,13 @@ const PostCard = ({ post }) => {
     setCommentFormOpened((prev) => !prev);
   }, []);
 
+  const onRemovePost = useCallback(() => {
+    dispatch({
+      type : REMOVE_POST_REQUEST,
+      data : post.id,
+    })
+  },[])
+
   return (
     <CardWrapper key={post.id}>
       <Card
@@ -38,7 +47,7 @@ const PostCard = ({ post }) => {
           liked
             ? <HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onToggleLike} />
             : <HeartOutlined key="heart" onClick={onToggleLike} />,
-          <MessageOutlined key="message" onClick={onToggleComment} />,
+              <MessageOutlined key="message" onClick={onToggleComment} />,
           <Popover
             key="ellipsis"
             content={(
@@ -47,7 +56,7 @@ const PostCard = ({ post }) => {
                   ? (
                     <>
                       <Button>수정</Button>
-                      <Button type="danger">삭제</Button>
+                      <Button type="danger" loading={removePostLoading} onClick={onRemovePost}>삭제</Button>
                     </>
                   )
                   : <Button>신고</Button>}

@@ -18,16 +18,15 @@ export const initialState = {
   me : null,
   signUpData : {},
   loginData : {},
-
 };
 
 const dummyUser = (data) => ({
   ...data,
   nickname : '제로초',
   id : 1,
-  Posts : [],
-  Followings : [],
-  Followers : [],
+  Posts : [{ id : 1}],
+  Followings : [{nickname : '김경수'}, {nickname : '이예진'}, {nickname : '김한나'}],
+  Followers : [{nickname : '김경수'}, {nickname : '이예진'}, {nickname : '김한나'}],
 });
 
 export const LOG_IN_REQUEST  = 'LOG_IN_REQUEST'; // 액션의 이름
@@ -53,6 +52,9 @@ export const FOLLOW_FAILURE = 'FOLLOW_FAILURE';
 export const UNFOLLOW_REQUEST = 'UNFOLLOW_REQUEST';
 export const UNFOLLOW_SUCCESS = 'UNFOLLOW_SUCCESS';
 export const UNFOLLOW_FAILURE = 'UNFOLLOW_FAILURE';
+
+export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
+export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 
 export const signUpAction = (data) => {
   return {
@@ -167,6 +169,25 @@ export default (state = initialState, action) => {
          changeNicknameLoading: false,
          changeNicknameData: action.error,
        };    
+
+      // 게시글 등록시 사용자 dummy Data에 동기화
+      case ADD_POST_TO_ME : 
+        return {
+          me : {
+            ...state.me,
+            Posts : [{ id : action.data}, ...state.me.Posts],
+          },
+        }
+
+        // 게시글 삭제
+        case REMOVE_POST_OF_ME : 
+          return {
+            ...state,
+            me : {
+              ...state.me,
+              Posts : state.me.Pos.filter((v) => v =>  v.id === action.data)
+            }
+          }
 
     default: 
       return {
