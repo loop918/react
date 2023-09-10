@@ -1,17 +1,36 @@
 export const initialState = {
-  isLoggedIn: false,   // 로그인시도중
-  isLoggingIn : false,
-  isLoggingOut : false, // 로그아웃 시도중
-  me: null,
-  signUpData: {},
-  loginData: {},
+  logInLoading : false, // 로그인 시도중
+  logInDone : false,
+  loginError : null,
+
+  logOutLoading : false, // 로그아웃 시도중
+  logOutDone : false,
+  logOutError : null,
+
+  signUpLoading : false, // 회원가입 시도중
+  signUpDone : false,
+  signUpFailure : null,
+
+  changeNicknameLoading : false, // 닉네임 변경 시도중
+  changeNicknameDone : false,
+  changeNicknameFailure : null,  
+
+  me : null,
+  signUpData : {},
+  loginData : {},
+
 };
 
-export const SIGN_UP = 'SIGN_UP';
-export const SIGN_UP_SUCCESS = 'SIGN_UP_SUCCESS';
-export const LOG_IN = 'LOG_IN'; // 액션의 이름
+const dummyUser = (data) => ({
+  ...data,
+  nickname : '제로초',
+  id : 1,
+  Posts : [],
+  Followings : [],
+  Followers : [],
+});
 
-export const LOG_IN_REQUEST  = 'LOG_IN_SUCCESS'; // 액션의 이름
+export const LOG_IN_REQUEST  = 'LOG_IN_REQUEST'; // 액션의 이름
 export const LOG_IN_SUCCESS  = 'LOG_IN_SUCCESS'; 
 export const LOG_IN_FAILURE  = 'LOG_IN_FAILURE'; 
 
@@ -19,15 +38,34 @@ export const LOG_OUT_REQUEST = 'LOG_OUT_REQUEST'; // 액션의 이름
 export const LOG_OUT_SUCCESS = 'LOG_OUT_SUCCESS'; 
 export const LOG_OUT_FAILURE = 'LOG_OUT_FAILURE';
 
+export const SIGN_UP_REQUEST = 'SIGN_UP_REQUEST';
+export const SIGN_UP_SUCCESS = 'SIGN_UP_SUCCESS';
+export const SIGN_UP_FAILURE = 'SIGN_UP_FAILURE';
+
+export const CHANGE_NICKNAME_REQUEST = 'CHANGE_NICKNAME_REQUEST';
+export const CHANGE_NICKNAME_SUCCESS = 'CHANGE_NICKNAME_SUCCESS';
+export const CHANGE_NICKNAME_FAILURE = 'CHANGE_NICKNAME_FAILURE';
+
+export const FOLLOW_REQUEST = 'FOLLOW_REQUEST';
+export const FOLLOW_SUCCESS = 'FOLLOW_SUCCESS';
+export const FOLLOW_FAILURE = 'FOLLOW_FAILURE';
+
+export const UNFOLLOW_REQUEST = 'UNFOLLOW_REQUEST';
+export const UNFOLLOW_SUCCESS = 'UNFOLLOW_SUCCESS';
+export const UNFOLLOW_FAILURE = 'UNFOLLOW_FAILURE';
+
 export const signUpAction = (data) => {
   return {
-    type: SIGN_UP,
+    type: SIGN_UP_REQUEST,
     data,
   };
 };
 
-export const signUpSuccess = {
-  type: SIGN_UP_SUCCESS,
+export const changeNicknameAction = (data) => {
+  return {
+    type: CHANGE_NICKNAME_REQUEST,
+    data,
+  };
 };
 
 export const loginRequestAction = (data) => {
@@ -42,63 +80,94 @@ export const logoutRequestAction = {
 };
 
 
-export const signUp = (data) => {
-  return {
-    type: SIGN_UP,
-    data,
-  }
-};
 
 export default (state = initialState, action) => {
   switch (action.type) {
     // 로그인
     case LOG_IN_REQUEST: 
-      console.log("reducers/user -> LOG_IN_REQUEST");
       return {
         ...state,
-        isLoggedIn : true,
+        logInLoading : true,
+        loginError : null,
+        logInDone : false,
       };
     case LOG_IN_SUCCESS: 
       return {
         ...state,
-        isLoggingIn: false,
-        isLoggedIn : true,
-        me : { ...action.data, nickname : 'zerocho' },
+        logInLoading: false,
+        logInDone : true,
+        me : dummyUser(action.data),
       };
     case LOG_IN_FAILURE: 
       return {
         ...state,
-        isLoggingIn: false,
-        isLoggedIn : false,
+        logInLoading: false,
+        loginError : action.error,
       };
         
     // 로그아웃
-    case LOG_OUT_REQUEST: 
+    case LOG_OUT_REQUEST : 
       return {
         ...state,
-        isLoggingOut: true,
-        //me: null,
+        logOutLoading : true,
+        logOutError : null,
       };
-    case LOG_OUT_SUCCESS: 
+    case LOG_OUT_SUCCESS : 
       return {
         ...state,
-        isLoggingOut: false,
-        isLoggedIn : false,
+        logOutLoading: false,
+        logOutDone : false,
         me : null,
       };
-    case LOG_OUT_FAILURE: 
+    case LOG_OUT_FAILURE : 
       return {
         ...state,
-        isLoggedOut:  false,
+        logOutLoading :  false,
+        logOutError : action.error
       };
             
     // 회원가입
-    case SIGN_UP: 
+    case SIGN_UP_REQUEST : 
       return {
         ...state,
-        signUpData: action.data,
+        signUpLoading: true,
+        signUpDone: false,
+        signUpError: null,
       };
+     case SIGN_UP_SUCCESS : 
+       return {
+         ...state,
+         signUpLoading: false,
+         signUpDone: true,
+       };
+     case SIGN_UP_FAILURE : 
+       return {
+         ...state,
+         signUpLoading: false,
+         signUpData: action.error,
+       };            
     
+    // 닉네임 변경
+    case CHANGE_NICKNAME_REQUEST : 
+      return {
+        ...state,
+        changeNicknameLoading: true,
+        changeNicknameDone: false,
+        changeNicknameError: null,
+      };
+     case CHANGE_NICKNAME_SUCCESS : 
+       return {
+         ...state,
+         changeNicknameLoading: false,
+         changeNicknameDone: true,
+       };
+     case CHANGE_NICKNAME_FAILURE : 
+       return {
+         ...state,
+         changeNicknameLoading: false,
+         changeNicknameData: action.error,
+       };    
+
     default: 
       return {
         ...state,

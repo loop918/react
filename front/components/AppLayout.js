@@ -24,8 +24,7 @@ const Global = createGlobalStyle`
 `;
 
 const AppLayout = ({ children }) => {
-  const { isLoggedIn } = useSelector(state => state.user);
-  console.log("로그인 상태" + isLoggedIn);
+  const { me } = useSelector(state => state.user);
   return (
     <div>
       <Global />
@@ -39,7 +38,7 @@ const AppLayout = ({ children }) => {
       <Row gutter={8}>
         <Col xs={24} md={6}>
           {
-            isLoggedIn
+            me
             ? <UserProfile />
             : <LoginForm />}
         </Col>
