@@ -15,17 +15,19 @@ const PostForm = () => {
   }, [imageInput.current]);
 
   // setText 초기화 (글 등록 후 & 페이지 열릴때 )
+
+  const onChangeText = useCallback((e) => {
+    setText(e.target.value);
+  }, []);
+
   useEffect(() => {
     if (addPostDone) {
       setText('');
     }
   }, [addPostDone]);
 
-  const onChangeText = useCallback((e) => {
-    setText(e.target.value);
-  }, []);
-
   const onSubmit = useCallback(() => {
+    console.log('addpost submit : ' + text);
     dispatch(addPost(text));
   }, [text]);
 

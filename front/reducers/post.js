@@ -45,25 +45,29 @@ export const ADD_COMMENT_SUCCESS = 'ADD_COMMENT_SUCCESS';
 export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
 
 export const addPost = (data) => {
-  type: ADD_POST_REQUEST,
-  data
+  return {
+    type: ADD_POST_REQUEST,
+    data    
+  }
 };
 
 export const addComment = (data) => {
-  type: ADD_COMMENT_REQUEST,
-  data
+  return {
+    type: ADD_COMMENT_REQUEST,
+    data
+  }
 };
 
-const dummyPost = {
+const dummyPost = (data) => ({
   id: 2,
-  content: '더미데이터입니다.',
+  content: data,
   User: {
     id: 1,
     nickname: '제로초',
   },
   Images: [],
   Comments: [],
-};
+});
 
 export default (state = initialState, action) => {
   switch (action.type) {
@@ -77,7 +81,7 @@ export default (state = initialState, action) => {
     case ADD_POST_SUCCESS : 
       return {
         ...state,
-        mainPosts: [dummyPost, ...state.mainPosts],
+        mainPosts: [dummyPost(action.data), ...state.mainPosts],
         addPostLoading: false,
         addPostDone : true,
       };

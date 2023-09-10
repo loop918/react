@@ -14,8 +14,6 @@ function logInAPI(data) {
 function* logIn(action) {
     try {
         console.log("sagas/user.js -> function* login(action)");
-        console.log("tttttttttttttttt");
-
         //const result = yield call(logInAPI, action.data);
         yield delay(1000);
         yield put({
