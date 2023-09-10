@@ -1,3 +1,5 @@
+import shortId from 'shortId';
+
 export const initialState = {
   mainPosts: [{
     id: 1,
@@ -13,6 +15,7 @@ export const initialState = {
     }, {
       src: 'https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg',
     }],
+    
     Comments: [{
       User: {
         nickname: 'nero',
@@ -58,17 +61,28 @@ export const addComment = (data) => {
   }
 };
 
+// dummy Data..
 const dummyPost = (data) => ({
-  id: 2,
+    id: shortId.generate(),
+    content: data,
+    User: {
+      id: 1,
+      nickname: '제로초',
+    },
+    Images: [],
+    Comments: [],
+});
+
+const dummyComment = (data) => ({
+  id: shortId.generate(),
   content: data,
   User: {
     id: 1,
     nickname: '제로초',
   },
-  Images: [],
-  Comments: [],
 });
 
+// reducer
 export default (state = initialState, action) => {
   switch (action.type) {
     // 글 추가
@@ -99,12 +113,21 @@ export default (state = initialState, action) => {
         addPostLoading : true,
         addPostError : null,
       };
-    case ADD_COMMENT_SUCCESS : 
-      return {
-        ...state,
-        addPostLoading : false,
-        addPostDone : true,
-      };
+    case ADD_COMMENT_SUCCESS : {
+        const targetPostIndex = state.mainPosts.findIndex((y) => y.id === action.data.postId);
+        const targetPost = {...state.mainPosts[targetPostIndex]};
+        const Comments = [dummyComment(action.data.content), ...targetPost.Comments];
+        const mainPosts = [...state.mainPosts];
+
+        mainPosts[targetPostIndex] = {...targetPost, Comments};
+
+        return {
+          ...state,
+          mainPosts,
+          addPostLoading : false,
+          addPostDone : true,
+        };
+      }
     case ADD_COMMENT_FAILURE : 
       return {
         ...state,
