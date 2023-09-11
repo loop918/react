@@ -1,40 +1,18 @@
 import shortId from 'shortId';
+import {produce} from 'immer';
+import { faker } from '@faker-js/faker';
+faker.seed(123);
 
 export const initialState = {
-  mainPosts: [{
-    id: 1,
-    User: {
-      id: 1,
-      nickname: '제로초',
-    },
-    content: '첫 번째 게시글',
-    Images: [{
-      id : shortId.generate(),
-      src: 'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
-    }, {
-      id : shortId.generate(),
-      src: 'https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg',
-    }, {
-      id : shortId.generate(),
-      src: 'https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg',
-    }],
-    
-    Comments: [{
-      id : shortId.generate(),
-      User: {
-        id : shortId.generate(),
-        nickname: 'nero',
-      },
-      content: '우와 개정판이 나왔군요~',
-    }, {
-      User: {
-        id : shortId.generate(),
-        nickname: 'hero',
-      },
-      content: '얼른 사고싶어요~',
-    }]
-  }],
+  mainPosts: [],
   imagePaths: [],
+
+  hasMorePost : true, // 인피니티 스크롤
+
+  loadPostsLoading : false,
+  loadPostsDone : false,
+  loadPostsError : null,
+
   addPostLoading : false,
   addPostDone : false,
   addPostError : null,
@@ -47,8 +25,30 @@ export const initialState = {
   addCommentDone : false,
   addCommentError : null,
 };
+export const generateDummyPost = (number) =>  Array(number).fill().map(() => ({
+        id : shortId.generate(),
+        User : {
+          id : shortId.generate(),
+          nickname : faker.internet.userName(),
+        },
+        content : faker.internet.userName(),
+        Images : [{
+          src : 'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
+        }],
+        Comments : [{
+          User : {
+            id: shortId.generate(),
+            nickname : faker.internet.userName(),
+          },
+          Content : faker.lorem.sentence(),
+        }],
+}))
 
 // ACTION 
+export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
+export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
+export const LOAD_POSTS_FAILURE = 'LOAD_POSTS_FAILURE';
+
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
 export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
@@ -96,84 +96,81 @@ const dummyComment = (data) => ({
   },
 });
 
-// reducer
+// reducer : "이전 상태"를 액션을 통해 "다음 상태"를 만들어내는 함수, 단 불변성을 지키면서!
 export default (state = initialState, action) => {
-  switch (action.type) {
-    // 글 추가
-    case ADD_POST_REQUEST : 
-      return {
-        ...state,
-        addPostLoading : true,
-        addPostError : null,
-      }
-    case ADD_POST_SUCCESS : 
-      return {
-        ...state,
-        mainPosts: [dummyPost(action.data), ...state.mainPosts],
-        addPostLoading: false,
-        addPostDone : true,
-      };
-    case ADD_POST_FAILURE : 
-      return {
-        ...state,
-        addPostLoading : false,
-        addPostError : action.error,
-      }
+  // immer 적용.
+  return produce(state, (draft) => {
+    // Action
+    switch (action.type) {
+      // 글 추가
+      case LOAD_POSTS_REQUEST : 
+        draft.loadPostsLoading = true;
+        draft.loadPostsDone = false;
+        draft.loadPostsError = null;
+        break;
+      case LOAD_POSTS_SUCCESS : 
+        draft.loadPostsLoading = false;
+        draft.loadPostsDone = true;
+        draft.mainPosts = action.data.concat(draft.mainPosts);
+        draft.hasMorePost = draft.mainPosts.length < 50;
+        break;
+      case LOAD_POSTS_FAILURE : 
+        draft.loadPostsLoading = false;
+        draft.loadPostsError = action.error;        
+        break;
 
-    // 글 삭제
-    case REMOVE_POST_REQUEST : 
-      return {
-        ...state,
-        removePostLoading : true,
-        removePostError : null,
-      }
-    case REMOVE_POST_SUCCESS : 
-      return {
-        ...state,
-        mainPosts: state.mainPosts.filter((v) => v.id !== action.data),
-        removePostLoading: false,
-        removePostDone : true,
-      };
-    case REMOVE_POST_FAILURE : 
-      return {
-        ...state,
-        removePostLoading : false,
-        removePostError : action.error,
-      }
+      // 글 추가
+      case ADD_POST_REQUEST : 
+        draft.addPostLoading = true;
+        draft.addPostDone = false;
+        draft.addPostError = null;
+        break;
+      case ADD_POST_SUCCESS : 
+        draft.addPostLoading = false;
+        draft.addPostDone = true;
+        draft.mainPosts.unsift(dummyPost(action.data));
+        break;
+      case ADD_POST_FAILURE : 
+        draft.addPostLoading = false;
+        draft.addPostError = action.error;        
+        break;
 
-    // 댓글 추가
-    case ADD_COMMENT_REQUEST : 
-      return {
-        ...state,
-        addPostLoading : true,
-        addPostError : null,
-      };
-    case ADD_COMMENT_SUCCESS : {
-        const targetPostIndex = state.mainPosts.findIndex((y) => y.id === action.data.postId);
-        const targetPost = {...state.mainPosts[targetPostIndex]};
-        const Comments = [dummyComment(action.data.content), ...targetPost.Comments];
-        const mainPosts = [...state.mainPosts];
+      // 글 삭제
+      case REMOVE_POST_REQUEST : 
+        draft.removePostLoading = true;
+        draft.removePostError = null;
+        break;
+      case REMOVE_POST_SUCCESS : 
+        draft.mainPosts =  state.mainPosts.filter((v) => v.id !== action.data);
+        draft.removePostLoading = false;
+        draft.removePostDone = true;
+        break;
+      case REMOVE_POST_FAILURE : 
+        draft.removePostLoading = false;
+        draft.removePostError = action.error;
+        break;
 
-        mainPosts[targetPostIndex] = {...targetPost, Comments};
+      // 댓글 추가
+      case ADD_COMMENT_REQUEST : 
+          draft.addPostLoading = true;
+          draft.addPostError = null;
+          break;
+      case ADD_COMMENT_SUCCESS :  
+          const post = draft.mainPosts.find((v) => v.id === action.data.postId); //  해당 게시글 찾기 (댓글 달릴..)
+          post.Comments.unsift(dummyComment(action.data.content));  // 해당 게시글에 입력한 댓글 넣어주기
+          draft.addPostLoading = false;
+          draft.addPostDone = true;
+          break;
+      case ADD_COMMENT_FAILURE : 
+          draft.addPostLoading = false;
+          draft.addPostError = action.error;
+          break;
 
-        return {
-          ...state,
-          mainPosts,
-          addPostLoading : false,
-          addPostDone : true,
-        };
-      }
-    case ADD_COMMENT_FAILURE : 
-      return {
-        ...state,
-        addPostLoading : false,
-        addPostError : action.error,
-      }
 
-    default: {
-      return {
-        ...state,
-      };
+      default: 
+          //return state;
+        break;
+      
     }
-  }
+  });
 };

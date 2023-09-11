@@ -11,7 +11,7 @@
     "browser": true,
     "node": true
   },
-  "extends": [
+  "extends": [ 
     "airbnb"
   ],
   "plugins": [

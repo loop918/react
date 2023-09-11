@@ -1,3 +1,5 @@
+import {produce} from 'immer';
+
 export const initialState = {
   logInLoading : false, // 로그인 시도중
   logInDone : false,
@@ -25,8 +27,8 @@ const dummyUser = (data) => ({
   nickname : '제로초',
   id : 1,
   Posts : [{ id : 1}],
-  Followings : [{nickname : '김경수'}, {nickname : '이예진'}, {nickname : '김한나'}],
-  Followers : [{nickname : '김경수'}, {nickname : '이예진'}, {nickname : '김한나'}],
+  Followings : [{nickname : 'AAA'}, {nickname : 'BBB'}, {nickname : 'CCC'}],
+  Followers : [{nickname : 'AAA'}, {nickname : 'BBB'}, {nickname : 'CCC'}],
 });
 
 export const LOG_IN_REQUEST  = 'LOG_IN_REQUEST'; // 액션의 이름
@@ -82,117 +84,99 @@ export const logoutRequestAction = {
 };
 
 
-
+// reducer : "이전 상태"를 액션을 통해 "다음 상태"를 만들어내는 함수, 단 불변성을 지키면서!
 export default (state = initialState, action) => {
-  switch (action.type) {
-    // 로그인
-    case LOG_IN_REQUEST: 
-      return {
-        ...state,
-        logInLoading : true,
-        loginError : null,
-        logInDone : false,
-      };
-    case LOG_IN_SUCCESS: 
-      return {
-        ...state,
-        logInLoading: false,
-        logInDone : true,
-        me : dummyUser(action.data),
-      };
-    case LOG_IN_FAILURE: 
-      return {
-        ...state,
-        logInLoading: false,
-        loginError : action.error,
-      };
-        
-    // 로그아웃
-    case LOG_OUT_REQUEST : 
-      return {
-        ...state,
-        logOutLoading : true,
-        logOutError : null,
-      };
-    case LOG_OUT_SUCCESS : 
-      return {
-        ...state,
-        logOutLoading: false,
-        logOutDone : false,
-        me : null,
-      };
-    case LOG_OUT_FAILURE : 
-      return {
-        ...state,
-        logOutLoading :  false,
-        logOutError : action.error
-      };
-            
-    // 회원가입
-    case SIGN_UP_REQUEST : 
-      return {
-        ...state,
-        signUpLoading: true,
-        signUpDone: false,
-        signUpError: null,
-      };
-     case SIGN_UP_SUCCESS : 
-       return {
-         ...state,
-         signUpLoading: false,
-         signUpDone: true,
-       };
-     case SIGN_UP_FAILURE : 
-       return {
-         ...state,
-         signUpLoading: false,
-         signUpData: action.error,
-       };            
-    
-    // 닉네임 변경
-    case CHANGE_NICKNAME_REQUEST : 
-      return {
-        ...state,
-        changeNicknameLoading: true,
-        changeNicknameDone: false,
-        changeNicknameError: null,
-      };
-     case CHANGE_NICKNAME_SUCCESS : 
-       return {
-         ...state,
-         changeNicknameLoading: false,
-         changeNicknameDone: true,
-       };
-     case CHANGE_NICKNAME_FAILURE : 
-       return {
-         ...state,
-         changeNicknameLoading: false,
-         changeNicknameData: action.error,
-       };    
+  // immer 적용.
+  return produce(state, (draft) => {
+    switch (action.type) {
+      // 로그인
+      case LOG_IN_REQUEST: 
+        draft.state = true;
+        draft.loginError = null;
+        draft.logInDone = false;
+        break;
+      case LOG_IN_SUCCESS: 
+        draft.logInLoading = false;
+        draft.logInDone = true;
+        draft.me = dummyUser(action.data);
+        break;
+      case LOG_IN_FAILURE: 
+        draft.logInLoading =  false;
+        draft.loginError = action.error;
+        break;
 
+      // 로그아웃
+      case LOG_OUT_REQUEST :       
+        draft.logOutLoading =  true;
+        draft.logOutError =  null;
+        break;
+      case LOG_OUT_SUCCESS : 
+        draft.logOutLoading = false;
+        draft.logOutDone = false;
+        draft.me =  null;
+        break;
+      case LOG_OUT_FAILURE : 
+        draft.logOutLoading =   false;
+        draft.logOutError = action.error;
+        break; 
+
+      // 회원가입
+      case SIGN_UP_REQUEST : 
+          draft.signUpLoading = true;
+          draft.signUpDone = false;
+          draft.signUpError = null;
+          break;
+      case SIGN_UP_SUCCESS : 
+          draft.signUpLoading =  false;
+          draft.signUpDone =  true;
+          break;
+      case SIGN_UP_FAILURE : 
+          draft.signUpLoading = false;
+          draft.signUpData = action.error;     
+          break;         
+        
+      // 닉네임 변경
+      case CHANGE_NICKNAME_REQUEST : 
+          draft.changeNicknameLoading= true;
+          draft.changeNicknameDone= false;
+          draft.changeNicknameError= null;
+          break;
+      case CHANGE_NICKNAME_SUCCESS : 
+          draft.changeNicknameLoading = false;
+          draft.changeNicknameDone =  true;
+          break;
+      case CHANGE_NICKNAME_FAILURE : 
+          draft.changeNicknameLoading = false;
+          draft.changeNicknameData =  action.error;
+          break;
+    
       // 게시글 등록시 사용자 dummy Data에 동기화
       case ADD_POST_TO_ME : 
-        return {
-          me : {
-            ...state.me,
-            Posts : [{ id : action.data}, ...state.me.Posts],
-          },
-        }
+        draft.me.Posts.unshift({ id : action.data})
+        break;
+        // return {
+        //   ...state,
+        //   me : {
+        //     ...state.me
+        //     Posts: [ { id.action.data}, ...state.me.Posts]
+        //   }
+        // }
 
-        // 게시글 삭제
-        case REMOVE_POST_OF_ME : 
-          return {
-            ...state,
-            me : {
-              ...state.me,
-              Posts : state.me.Pos.filter((v) => v =>  v.id === action.data)
-            }
-          }
+      // 게시글 삭제
+      case REMOVE_POST_OF_ME : 
+        draft.me.Posts = draft.me.Posts.filter((v) => v.id !== action.data)
+        break;
+        // return  {
+        //     ...state, 
+        //     me : {
+        //       ...state.me,
+        //       Posts : state.me.Posts.filter((v) => v.id !== action.data)
+        //     }
+        // }
 
-    default: 
-      return {
-        ...state,
+      default:  
+        break;
       }
-  }
-
+  });
 };
+  

@@ -8,14 +8,13 @@ import AppLayout from '../components/AppLayout';
 import FollowList from '../components/FollowList';
 
 const Profile = () => {
-  const { isLoggedIn } = useSelector(state => state.user);
-
+  const { me }  = useSelector((state) => state.user);
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!me && me.id) {
       Router.replace('/');
     }
-  }, [isLoggedIn])
-  const { me }  = useSelector((state) => state.user);
+  }, [me && me.id])
+  
 
   return (
     <AppLayout>
