@@ -6,5 +6,5 @@ Router.post('/',(req,res) => {
     res.json({})
 });
 
-export default Router;
+module.exports = Router;
 

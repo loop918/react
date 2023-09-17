@@ -1,6 +1,15 @@
 const express = require('express');
 const app = express();
+const db = require('./models');
 
+// db sequelize
+db.sequelize.sync()
+.then(() => {
+    console.log('db 연결 성공');
+})
+.catch(console.error);
+
+// router
 const userRouter = require('./routes/user');
 const postRouter = require('./routes/post');
 
