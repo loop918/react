@@ -20,12 +20,20 @@ const Signup = () => {
     const [password, onChangePassword] = useInput('');
 
     const dispatch = useDispatch();
-    const { user, signUpLoading, signUpDone, signUpError } = useSelector((state) => state.user);
+    const { user, signUpLoading, signUpDone, signUpError, me} = useSelector((state) => state.user);
+
+    useEffect(() => {
+      if (me) {
+        alert('로그인이 이미 되어 있습니다.');
+        Router.replace('/');
+      }
+    }, [me])
+    
 
     // 회원가입 완료시 메인페이지로 이동.
     useEffect(() => {
       if(signUpDone) {
-        Router.push('/');
+        Router.replace('/');
       } 
     },[signUpDone]);
 

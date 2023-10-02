@@ -1,12 +1,14 @@
 const express = require('express');
-const { User } = require('../models');
+
 const bcrypt = require('bcrypt');
 const passport = require('passport');
 const Router = express.Router();
-const db = require('../models');
+
+const { User, Post } = require('../models');
+const { isLoggedIn, isNotLoggedIn } =  require('./middlewares');
 
 // 로그인
-Router.post('/login', (req, res ,next)=> {
+Router.post('/login', isNotLoggedIn, (req, res ,next)=> {
 
     passport.authenticate ('local', (err, user, info) => {
         if (err) {
@@ -25,7 +27,8 @@ Router.post('/login', (req, res ,next)=> {
                 return next(loginErr);
             }
 
-            // login success
+            // login success (JOIN 방법)
+            // *반드시 model에 as가 되어있으면 as도 명시 해주자!
             const fullUserWithoutPassword = await User.findOne({
                 where : { id : user.id },
                 // attributes : ['id', 'nickname','email'],
@@ -33,12 +36,12 @@ Router.post('/login', (req, res ,next)=> {
                     exclude : ['password']
                 },
                 include : [{
-                    model : db.Post,
+                    model : Post,
                 },{
-                    model : db.User,
+                    model : User,
                     as : 'Followings',
                 },{
-                    model : db.User,
+                    model : User,
                     as : 'Followers',
                 }]
             })
@@ -51,7 +54,7 @@ Router.post('/login', (req, res ,next)=> {
 
 
 // 회원가입
-Router.post('/', async (req, res, next) => {
+Router.post('/', isNotLoggedIn, async (req, res, next) => {
     try {
         const exUser = await User.findOne({
             where : {
@@ -78,10 +81,15 @@ Router.post('/', async (req, res, next) => {
     }
 });
 
-Router.post('/logout', (req, res) => {
-    req.logout(); // 쿠키 지우기
-    req.session.destory(); // 세션 지우기
-    res.send('ok');
+Router.post("/logout", async (req, res, next) => {
+	req.logout((err) => {
+		req.session.destroy();
+		if (err) {
+			res.redirect("/");
+		} else {
+			res.status(200).send("server ok: 로그아웃 완료");
+		}
+	});
 });
 
 module.exports = Router;
