@@ -14,7 +14,7 @@ import {
 
 // 팔로우
 function followAPI(data) {
-    return axios.post('/api/login', data);
+    return axios.post('/user/follow', data);
 }
 
 function* follow(action) {
@@ -35,7 +35,7 @@ function* follow(action) {
 
 //언 팔로우
 function unfollowAPI(data) {
-    return axios.post('/api/login', data);
+    return axios.post('/user/unfollow', data);
 }
 
 function* unfollow(action) {
@@ -56,17 +56,17 @@ function* unfollow(action) {
 
 //로그인 
 function logInAPI(data) {
-    return axios.post('/api/login', data);
+    return axios.post('/user/login', data);
 }
 
 function* logIn(action) {
     try {
-        console.log("sagas/user.js -> function* login(action)");
-        //const result = yield call(logInAPI, action.data);
-        yield delay(1000);
+        const result = yield call(logInAPI, action.data);
+        console.log('000000000000000000000000000');
+        console.log(result.data);
         yield put({
             type : LOG_IN_SUCCESS,
-            data : action.data,
+            data : result.data,
         });
     } catch (err) {
         yield put({
@@ -84,7 +84,6 @@ function logOutAPI() {
 function* logOut() {
     try {
         console.log("sagas/user.js -> function* logOut()");
-        yield delay(1000);
         yield put({
             type : LOG_OUT_SUCCESS,
         });
@@ -98,16 +97,15 @@ function* logOut() {
 
 // 회원가입
 function signUpAPI(data) {
-    return axios.post('http://localhost:3065/user', data);
+    return axios.post('/user', data);
 }
 
 function* signUp(action) {
     try {
         const result =  yield call(signUpAPI, action.data);
-        console.log(result);
-
         yield put({
             type : SIGN_UP_SUCCESS,
+            data : result.data,
         });
     } catch (error) {
         yield put({
