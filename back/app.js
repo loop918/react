@@ -26,8 +26,8 @@ db.sequelize.sync()
 .catch(console.error);
 
 app.use(cors({
-    origin : '*',
-    credentials : false,
+    origin : 'http://localhost:3060',
+    credentials : true, // 쿠키 전달 client -> server
 }));
 
 passportConfig();

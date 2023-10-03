@@ -1,6 +1,7 @@
 import shortId from 'shortId';
+import axios from 'axios';
 
-import {all, takeLatest, fork, put, delay, throttle} from 'redux-saga/effects';
+import {all, takeLatest, fork, put, delay, throttle, call} from 'redux-saga/effects';
 import {
     ADD_POST_REQUEST, ADD_POST_SUCCESS, ADD_POST_FAILURE,
     REMOVE_POST_SUCCESS, REMOVE_POST_REQUEST, REMOVE_POST_FAILURE,
@@ -16,7 +17,7 @@ import {
 
 // 게시글 불러오기
 function loadPostsAPI(data) {
-    return axios.post('/api/post/loadPosts', data);
+    return axios.post('/post/loadPosts', data);
 }
 
 function* loadPosts(action){
@@ -37,24 +38,21 @@ function* loadPosts(action){
 
 // 게시글 추가
 function addPostAPI(data) {
-    return axios.post('/api/post', data);
+    return axios.post('/post', { content : data });
 }
 
 function* addPost(action) {
     console.log("sagas/post.js -> function* addPost(action)");
     try {
-        const id = shortId.generate();
-        yield delay(1000);
+        const result = yield call(addPostAPI, action.data );
+        console.log(result.data);
         yield put({
             type : ADD_POST_SUCCESS,
-            data : {
-                id,
-                content : action.data
-            }
+            data : result.data,
         })
         yield put({
             type : ADD_POST_TO_ME,
-            data : id,
+            data : result.data.id,
         })
 
     } catch (err) {
@@ -67,7 +65,7 @@ function* addPost(action) {
 
 // 게시글 삭제
 function removePostAPI(data) {
-    return axios.post('/api/post', data);
+    return axios.post('/post/delete', data);
 }
 
 function* removePost(action) {
@@ -92,16 +90,16 @@ function* removePost(action) {
 
 // 댓글 추가
 function addCommentAPI(data) {
-    return axios.post(`/api/pody/${data.postId}/comment`, data);
+    return axios.post(`/post/${data.postId}/comment`, data); // POST  /post/1/comment
 }
 
 function* addComment(action) {
     console.log("sagas/post.js -> function* addComment(action)");
     try {
-        yield delay(1000);
+        const result = yield call(addCommentAPI, action.data);
         yield put({
             type : ADD_COMMENT_SUCCESS,
-            data : action.data
+            data : result.data,
         })
     } catch (err) {
         yield put({

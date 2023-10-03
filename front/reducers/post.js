@@ -75,27 +75,6 @@ export const addComment = (data) => {
   }
 };
 
-// dummy Data..
-const dummyPost = (data) => ({
-    id: data.id,
-    content: data.content,
-    User: {
-      id: 1,
-      nickname: '제로초',
-    },
-    Images: [],
-    Comments: [],
-});
-
-const dummyComment = (data) => ({
-  id: shortId.generate(),
-  content: data,
-  User: {
-    id: 1,
-    nickname: '제로초',
-  },
-});
-
 // reducer : "이전 상태"를 액션을 통해 "다음 상태"를 만들어내는 함수, 단 불변성을 지키면서!
 export default (state = initialState, action) => {
   // immer 적용.
@@ -128,7 +107,7 @@ export default (state = initialState, action) => {
       case ADD_POST_SUCCESS : 
         draft.addPostLoading = false;
         draft.addPostDone = true;
-        draft.mainPosts.unsift(dummyPost(action.data));
+        draft.mainPosts.unsift(action.data);
         break;
       case ADD_POST_FAILURE : 
         draft.addPostLoading = false;
@@ -157,7 +136,7 @@ export default (state = initialState, action) => {
           break;
       case ADD_COMMENT_SUCCESS :  
           const post = draft.mainPosts.find((v) => v.id === action.data.postId); //  해당 게시글 찾기 (댓글 달릴..)
-          post.Comments.unsift(dummyComment(action.data.content));  // 해당 게시글에 입력한 댓글 넣어주기
+          post.Comments.unsift(action.data);  // 해당 게시글에 입력한 댓글 넣어주기
           draft.addPostLoading = false;
           draft.addPostDone = true;
           break;
