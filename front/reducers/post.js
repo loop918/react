@@ -1,7 +1,4 @@
-import shortId from 'shortId';
 import {produce} from 'immer';
-import { faker } from '@faker-js/faker';
-faker.seed(123);
 
 export const initialState = {
   mainPosts: [],
@@ -25,24 +22,6 @@ export const initialState = {
   addCommentDone : false,
   addCommentError : null,
 };
-export const generateDummyPost = (number) =>  Array(number).fill().map(() => ({
-        id : shortId.generate(),
-        User : {
-          id : shortId.generate(),
-          nickname : faker.internet.userName(),
-        },
-        content : faker.internet.userName(),
-        Images : [{
-          src : 'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
-        }],
-        Comments : [{
-          User : {
-            id: shortId.generate(),
-            nickname : faker.internet.userName(),
-          },
-          Content : faker.lorem.sentence(),
-        }],
-}))
 
 // ACTION 
 export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
@@ -90,7 +69,7 @@ export default (state = initialState, action) => {
       case LOAD_POSTS_SUCCESS : 
         draft.loadPostsLoading = false;
         draft.loadPostsDone = true;
-        draft.mainPosts = action.data.concat(draft.mainPosts);
+        draft.mainPosts = action.data.concat(draft.mainPosts); // 기존 게시글에 추가.
         draft.hasMorePost = draft.mainPosts.length < 50;
         break;
       case LOAD_POSTS_FAILURE : 
@@ -107,7 +86,7 @@ export default (state = initialState, action) => {
       case ADD_POST_SUCCESS : 
         draft.addPostLoading = false;
         draft.addPostDone = true;
-        draft.mainPosts.unsift(action.data);
+        draft.mainPosts.unshift(action.data);
         break;
       case ADD_POST_FAILURE : 
         draft.addPostLoading = false;
@@ -135,8 +114,8 @@ export default (state = initialState, action) => {
           draft.addPostError = null;
           break;
       case ADD_COMMENT_SUCCESS :  
-          const post = draft.mainPosts.find((v) => v.id === action.data.postId); //  해당 게시글 찾기 (댓글 달릴..)
-          post.Comments.unsift(action.data);  // 해당 게시글에 입력한 댓글 넣어주기
+          const post = draft.mainPosts.find((v) => v.id === action.data.PostId); //  해당 게시글 찾기 (댓글 달릴..)
+          post.Comments.unshift(action.data);  // 해당 게시글에 입력한 댓글 넣어주기
           draft.addPostLoading = false;
           draft.addPostDone = true;
           break;

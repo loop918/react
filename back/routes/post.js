@@ -6,6 +6,8 @@ const { isLoggedIn } = require('./middlewares');
 // 게시글 등록
 router.post('/', isLoggedIn, async(req, res, next) => {
     try {
+        console.log('req.user');
+        console.log(req.user);
         // 추가
         const post = await Post.create({
             content : req.body.content,
@@ -19,8 +21,13 @@ router.post('/', isLoggedIn, async(req, res, next) => {
                 model : Image,
             }, {
                 model : Comment,
+                include : [{
+                    model : User,
+                    attributes : ['id', 'nickname'],    
+                }]
             }, {
                 model : User,
+                attributes : ['id', 'nickname'],
             }]
         })
         return res.status(201).json(fullPost);
@@ -35,7 +42,7 @@ router.post('/', isLoggedIn, async(req, res, next) => {
 router.post('/:postId/comment', isLoggedIn,  async (req, res, next) => {
     try {
         const exPost = await Post.findOne({
-            where : { id : req.params.postsId }
+            where : { id : req.params.postId }
         })
 
         if( !exPost ) {
@@ -44,23 +51,23 @@ router.post('/:postId/comment', isLoggedIn,  async (req, res, next) => {
 
         const comment = await Comment.create({
             content : req.body.content,
-            PostId : req.params.postId,
+            PostId : parseInt(req.params.postId, 10),
             UserId : req.user.id,
         })
-        return res.status(201).json(comment);
+        const fullComment = await Comment.findOne({
+            where : { id : comment.id },
+            include : [{
+                model : User,
+                attributes : ['id', 'nickname'],
+            }],
+        })
+        console.log(fullComment);
+        return res.status(201).json(fullComment);
 
     } catch (error) {
         console.error(error);
         next(error);
     }
-});
-
-router.post('/', (req,res) => {
-    res.json({ id : 1, content : 'hello'})
-});
-
-router.delete('/', (req,res) => {
-    res.json({ id : 1})
 });
 
 module.exports = router;

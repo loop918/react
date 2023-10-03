@@ -3,6 +3,7 @@ const app = express();
 const dotenv = require('dotenv');
 dotenv.config();
 
+const morgan = require('morgan');
 const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -11,6 +12,7 @@ const passport = require('passport');
 // router
 const userRouter = require('./routes/user');
 const postRouter = require('./routes/post');
+const postsRouter = require('./routes/posts');
 
 // db 
 const db = require('./models');
@@ -25,6 +27,7 @@ db.sequelize.sync()
 })
 .catch(console.error);
 
+app.use(morgan('dev'));
 app.use(cors({
     origin : 'http://localhost:3060',
     credentials : true, // 쿠키 전달 client -> server
@@ -53,6 +56,7 @@ app.get('/', (req,res) => {
 
 app.use('/user', userRouter); // User 라우터
 app.use('/post', postRouter); // Post 라우터
+app.use('/posts', postsRouter); // Posts 라우터
 
 // server port 3065
 app.listen(3065, () => {

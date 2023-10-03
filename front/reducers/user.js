@@ -1,23 +1,27 @@
 import {produce} from 'immer';
 
 export const initialState = {
-  followLoading : false, // 로그인 시도중
+  loadMyInfoLoading : false,
+  loadMyInfoDone : false,
+  loadMyInfoError : null,
+
+  followLoading : false, 
   followDone : false,
   followError : null,
 
-  unfollowLoading : false, // 로그인 시도중
+  unfollowLoading : false, 
   unfollowDone : false,
   unfollowError : null,  
 
-  logInLoading : false, // 로그인 시도중
+  logInLoading : false,
   logInDone : false,
   loginError : null,
 
-  logOutLoading : false, // 로그아웃 시도중
+  logOutLoading : false, 
   logOutDone : false,
   logOutError : null,
 
-  signUpLoading : false, // 회원가입 시도중
+  signUpLoading : false, 
   signUpDone : false,
   signUpFailure : null,
 
@@ -39,11 +43,15 @@ const dummyUser = (data) => ({
   Followers : [{nickname : 'AAA'}, {nickname : 'BBB'}, {nickname : 'CCC'}],
 });
 
-export const LOG_IN_REQUEST  = 'LOG_IN_REQUEST'; // 액션의 이름
+export const LOAD_MY_INFO_REQUEST  = 'LOAD_MY_INFO_REQUEST'; 
+export const LOAD_MY_INFO_SUCCESS  = 'LOAD_MY_INFO_SUCCESS'; 
+export const LOAD_MY_INFO_FAILURE  = 'LOAD_MY_INFO_FAILURE'; 
+
+export const LOG_IN_REQUEST  = 'LOG_IN_REQUEST'; 
 export const LOG_IN_SUCCESS  = 'LOG_IN_SUCCESS'; 
 export const LOG_IN_FAILURE  = 'LOG_IN_FAILURE'; 
 
-export const LOG_OUT_REQUEST = 'LOG_OUT_REQUEST'; // 액션의 이름
+export const LOG_OUT_REQUEST = 'LOG_OUT_REQUEST'; 
 export const LOG_OUT_SUCCESS = 'LOG_OUT_SUCCESS'; 
 export const LOG_OUT_FAILURE = 'LOG_OUT_FAILURE';
 
@@ -65,6 +73,13 @@ export const UNFOLLOW_FAILURE = 'UNFOLLOW_FAILURE';
 
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
+
+export const loadMyInfoAction = (data) => {
+  return {
+    type : LOAD_MY_INFO_REQUEST,
+    data,
+  }
+}
 
 export const signUpAction = (data) => {
   return {
@@ -97,6 +112,22 @@ export default (state = initialState, action) => {
   // immer 적용.
   return produce(state, (draft) => {
     switch (action.type) {
+      // 내정보 가져오기
+      case LOAD_MY_INFO_REQUEST: 
+        draft.loadMyInfoLoading = true;
+        draft.loadMyInfoError = null;
+        draft.loadMyInfoDone = false;
+        break;
+      case LOAD_MY_INFO_SUCCESS: 
+        draft.loadMyInfoLoading = false;
+        draft.me = action.data;
+        draft.loadMyInfoDone = true;
+        break;
+      case LOAD_MY_INFO_FAILURE: 
+        draft.loadMyInfoLoading =  false;
+        draft.loadMyInfoError = action.error;
+        break;
+
       //팔로우
       case FOLLOW_REQUEST: 
         draft.followLoading = true;

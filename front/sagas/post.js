@@ -1,4 +1,3 @@
-import shortId from 'shortId';
 import axios from 'axios';
 
 import {all, takeLatest, fork, put, delay, throttle, call} from 'redux-saga/effects';
@@ -7,7 +6,6 @@ import {
     REMOVE_POST_SUCCESS, REMOVE_POST_REQUEST, REMOVE_POST_FAILURE,
     ADD_COMMENT_REQUEST, ADD_COMMENT_SUCCESS, ADD_COMMENT_FAILURE, 
     LOAD_POSTS_REQUEST,LOAD_POSTS_SUCCESS, LOAD_POSTS_FAILURE, 
-    generateDummyPost,    
 } from '../reducers/post';
 
 import {
@@ -17,16 +15,16 @@ import {
 
 // 게시글 불러오기
 function loadPostsAPI(data) {
-    return axios.post('/post/loadPosts', data);
+    return axios.get('/posts', data);
 }
 
 function* loadPosts(action){
     console.log("sagas/post.js -> function* roadPosts(action)");
     try {
-        yield delay(1000);
+        const result = yield call(loadPostsAPI, action.data)
         yield put({
             type : LOAD_POSTS_SUCCESS,
-            data: generateDummyPost(10),
+            data: result.data,
         })
     } catch (err) {
         yield put({
@@ -42,7 +40,6 @@ function addPostAPI(data) {
 }
 
 function* addPost(action) {
-    console.log("sagas/post.js -> function* addPost(action)");
     try {
         const result = yield call(addPostAPI, action.data );
         console.log(result.data);
@@ -56,6 +53,7 @@ function* addPost(action) {
         })
 
     } catch (err) {
+        console.error(err);
         yield put({
             type :  ADD_POST_FAILURE,
             data : err.response.data
@@ -94,7 +92,6 @@ function addCommentAPI(data) {
 }
 
 function* addComment(action) {
-    console.log("sagas/post.js -> function* addComment(action)");
     try {
         const result = yield call(addCommentAPI, action.data);
         yield put({
@@ -102,6 +99,7 @@ function* addComment(action) {
             data : result.data,
         })
     } catch (err) {
+        console.error(err);
         yield put({
             type :  ADD_COMMENT_FAILURE,
             data : err.response.data

@@ -7,9 +7,29 @@ import {
     SIGN_UP_REQUEST, SIGN_UP_SUCCESS, SIGN_UP_FAILURE, 
     CHANGE_NICKNAME_REQUEST, CHANGE_NICKNAME_SUCCESS, CHANGE_NICKNAME_FAILURE,
     FOLLOW_REQUEST, FOLLOW_SUCCESS, FOLLOW_FAILURE, 
-    UNFOLLOW_REQUEST, UNFOLLOW_SUCCESS, UNFOLLOW_FAILURE, 
+    UNFOLLOW_REQUEST, UNFOLLOW_SUCCESS, UNFOLLOW_FAILURE,
+    LOAD_MY_INFO_REQUEST, LOAD_MY_INFO_SUCCESS, LOAD_MY_INFO_FAILURE, 
 } from '../reducers/user';
 
+// 내 정보 가져오기 (쿠키 값으로 조회)
+function loadMyInfoAPI() {
+    return axios.get('/user');
+}
+
+function* loadMyInfo(action) {
+    try {
+        const result = yield call(loadMyInfoAPI, action.data);
+        yield push({
+            type : LOAD_MY_INFO_SUCCESS,
+            data : result.data,
+        })
+    } catch (error) {
+        yield put({
+            type : LOAD_MY_INFO_FAILURE,
+            data : error.response.data,
+        })
+    }
+}
 
 
 // 팔로우
@@ -134,6 +154,10 @@ function* changeNickname() {
 }
 
 // Listener 
+function* watchloadMyInfo() {
+    yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo);
+}
+
 function* watchFollow() {
     yield takeLatest(FOLLOW_REQUEST, follow);
 }
@@ -160,6 +184,7 @@ function* watchChangeNickname() {
 
 export default function* userSaga() {
     yield all([
+        fork(watchloadMyInfo),
         fork(watchLogIn),
         fork(watchLogOut),
         fork(watchSignUp),
