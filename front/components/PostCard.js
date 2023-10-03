@@ -5,7 +5,7 @@ import { RetweetOutlined, HeartTwoTone, HeartOutlined, MessageOutlined, Ellipsis
 import styled from 'styled-components';
 import Link from 'next/link';
 import { useSelector , useDispatch} from 'react-redux';
-import { REMOVE_POST_REQUEST  } from '../reducers/post';
+import { REMOVE_POST_REQUEST, LIKE_POST_REQUEST, UNLIKE_POST_REQUEST  } from '../reducers/post';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
 import PostImages from './PostImages';
@@ -18,13 +18,23 @@ const CardWrapper = styled.div`
 const PostCard = ({ post }) => {
   const [commentFormOpened, setCommentFormOpened] = useState(false);
   const dispatch = useDispatch();
-  const id = useSelector((state) => state.user.me && state.user.me.id);
+  const id = useSelector((state) => state.user.me && state.user.me?.id);
+  const liked = post.Likers.find((v) => v.id === id);
+  
   const {removePostLoading} = useSelector((state) => state.post);
 
-  const [liked, setLiked] = useState(false);
+  const onLike = useCallback(() => {
+    dispatch({
+      type : LIKE_POST_REQUEST,
+      data : post.id,
+    })
+  }, []);
 
-  const onToggleLike = useCallback(() => {
-    setLiked((prev) => !prev);
+  const onUnlike = useCallback(() => {
+    dispatch({
+      type : UNLIKE_POST_REQUEST,
+      data : post.id,
+    })
   }, []);
 
   const onToggleComment = useCallback(() => {
@@ -45,8 +55,8 @@ const PostCard = ({ post }) => {
         actions={[
           <RetweetOutlined key="retweet" />,
           liked
-            ? <HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onToggleLike} />
-            : <HeartOutlined key="heart" onClick={onToggleLike} />,
+            ? <HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onUnlike} />
+            : <HeartOutlined key="heart" onClick={onLike} />,
               <MessageOutlined key="message" onClick={onToggleComment} />,
           <Popover
             key="ellipsis"
@@ -109,6 +119,7 @@ PostCard.propTypes = {
     createdAt: PropTypes.string,
     Comments: PropTypes.arrayOf(PropTypes.any),
     Images: PropTypes.arrayOf(PropTypes.any),
+    Likers: PropTypes.arrayOf(PropTypes.object),
   }),
 };
 
