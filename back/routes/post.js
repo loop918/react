@@ -50,7 +50,7 @@ router.post('/:postId/comment', isLoggedIn,  async (req, res, next) => {
         })
 
         if( !exPost ) {
-            return res.status(403).json('해당 게시글이 존재하지 않습니다..');
+            return res.status(403).json('해당 게시글이 존재하지 않습니다.');
         }
 
         const comment = await Comment.create({
@@ -78,7 +78,7 @@ router.patch('/:postId/like', async (req, res, next)=> { // PATCH /post/${data}/
     try {
         const exPost = await Post.findOne({ where : { id : req.params.postId }})
         if(!exPost) {
-            return res.status(403).json('게시글이 존재하지 않습니다..');
+            return res.status(403).json('게시글이 존재하지 않습니다.');
         }
         await exPost.addLikers(req.user.id);
         res.json({ PostId : this.post.id, UserId : req.user.id });
