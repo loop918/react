@@ -65,16 +65,15 @@ function* addPost(action) {
 
 // 게시글 삭제
 function removePostAPI(data) {
-    return axios.post('/post/delete', data);
+    return axios.delete(`/post/${data}`);
 }
 
 function* removePost(action) {
-    console.log("sagas/post.js -> function* removePost(action)");
     try {
-        yield delay(1000);
+        const result = yield call(removePostAPI, action.data);
         yield put({
             type : REMOVE_POST_SUCCESS,
-            data : action.data,
+            data : result.data,
         })
         yield put({
             type : REMOVE_POST_OF_ME,

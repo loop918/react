@@ -39,8 +39,7 @@ function followAPI(data) {
 
 function* follow(action) {
     try {
-        console.log("sagas/user.js -> function* follow(action)");
-        yield delay(1000);
+        const result = yield call(followAPI, action.data);
         yield put({
             type : FOLLOW_SUCCESS,
             data : action.data,
@@ -60,8 +59,7 @@ function unfollowAPI(data) {
 
 function* unfollow(action) {
     try {
-        console.log("sagas/user.js -> function* unfollow(action)");
-        yield delay(1000);
+        const result = yield call(unfollowAPI, action.data);
         yield put({
             type : UNFOLLOW_SUCCESS,
             data : action.data,
@@ -134,16 +132,16 @@ function* signUp(action) {
 }
 
 // 이름변경
-function changeNicknameAPI() {
-    return axios.post('/api/signUp')
+function changeNicknameAPI(data) {
+    return axios.patch('/user/nickname', {nickname : data});
 }
 
-function* changeNickname() {
+function* changeNickname(action) {
     try {
-        console.log("sagas/user.js -> function* changeNickname()");
-        yield delay(1000);
+        const result = yield call(changeNicknameAPI, action.data)
         yield put({
             type : CHANGE_NICKNAME_SUCCESS,
+            data : result.data,
         });
     } catch (err) {
         yield put({

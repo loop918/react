@@ -104,4 +104,18 @@ router.delete('/:postId/unlike', async (req, res, next)=> { // DELETE /post/${da
     }
 });
 
+// 삭제
+router.delete('/:postId', async (req, res, next) => { // DELETE //post/1
+        try {
+            await Post.destroy({
+                where : { id : req.params.postId },
+                UserId : req.user.id, // 내가 쓴 게시글.
+            })
+            res.json({ PostId : parseInt(req.params.postId, 10) });
+        } catch(err) {
+            console.error(err);
+            next(err)
+        }
+})
+
 module.exports = router;

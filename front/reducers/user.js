@@ -34,15 +34,6 @@ export const initialState = {
   loginData : {},
 };
 
-const dummyUser = (data) => ({
-  ...data,
-  nickname : '제로초',
-  id : 1,
-  Posts : [{ id : 1}],
-  Followings : [{nickname : 'AAA'}, {nickname : 'BBB'}, {nickname : 'CCC'}],
-  Followers : [{nickname : 'AAA'}, {nickname : 'BBB'}, {nickname : 'CCC'}],
-});
-
 export const LOAD_MY_INFO_REQUEST  = 'LOAD_MY_INFO_REQUEST'; 
 export const LOAD_MY_INFO_SUCCESS  = 'LOAD_MY_INFO_SUCCESS'; 
 export const LOAD_MY_INFO_FAILURE  = 'LOAD_MY_INFO_FAILURE'; 
@@ -213,6 +204,7 @@ export default (state = initialState, action) => {
           draft.changeNicknameError= null;
           break;
       case CHANGE_NICKNAME_SUCCESS : 
+          draft.me.nickname = action.data.nickname;
           draft.changeNicknameLoading = false;
           draft.changeNicknameDone =  true;
           break;
