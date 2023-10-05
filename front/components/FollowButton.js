@@ -22,7 +22,7 @@ const FollowButton = ({ post }) => {
         data : post.User.id,
       }) 
     }
-  },[])
+  },[isFollwing])
 
   // 내가 쓴 글은 팔로우 버튼 안뜨게 처리..
   if(post.User.id === me.id) {

@@ -86,7 +86,6 @@ router.post('/login',  (req, res ,next)=> {
     
 });
 
-
 // 회원가입
 router.post('/',  async (req, res, next) => {
     try {
@@ -107,7 +106,7 @@ router.post('/',  async (req, res, next) => {
            password : hashedPassword,
        });
        res.setHeader('Access-Control-Allow-Origin', '*');
-       res.status(200).send('회원가입이 완료되었습니다.');
+       return res.status(200).send('회원가입이 완료되었습니다.');
 
     } catch (error) {
       console.error(error);
@@ -122,7 +121,7 @@ router.post("/logout", async (req, res, next) => {
 		if (err) {
 			res.redirect("/");
 		} else {
-			res.status(200).send("server ok: 로그아웃 완료");
+			return res.status(200).send("server ok: 로그아웃 완료");
 		}
 	});
 });
@@ -135,7 +134,45 @@ router.patch('/nickname', isLoggedIn, async(req, res, next) => {
         }, {
             where : { id : req.user.id }
         });
-        res.status(200).json({ nickname : req.body.nickname });
+        return res.status(200).json({ nickname : req.body.nickname });
+
+    } catch(err) {
+        console.error(err);
+        next(err);
+    }
+})
+
+// 팔로우
+router.patch('/:userId/follow', isLoggedIn, async(req, res, next) => { // PATCH /user/1/follow
+    try {
+        const user = await User.findOne({
+            where : { id : req.params.userId }
+        })
+        console.log('0000000000000000');
+        console.log(user);
+        if( !user ) {
+            res.status(403).send('없는 사람입니다.');
+        }
+        await user.addFollowers(req.user.id); // 팔로우.
+        return res.status(200).json({UserId : parseInt(req.params.userId, 10)});
+        
+    } catch(err) {
+        console.error(err);
+        next(err);
+    }
+})
+
+// 언 팔로우
+router.delete('/:userId/unfollow', isLoggedIn, async(req, res, next) => { // DELETE /user/1/unfollow
+    try {
+        const user = await User.findOne({
+            where : { id : req.params.userId}
+        })
+        if( !user ) {
+            res.status(403).send('없는 사람입니다.');
+        }
+        await user.removeFollowers(req.user.id); // 언 팔로우.
+        return res.status(200).json({UserId : parseInt(req.params.userId, 10) });
 
     } catch(err) {
         console.error(err);

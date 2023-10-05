@@ -34,7 +34,7 @@ function* loadMyInfo(action) {
 
 // 팔로우
 function followAPI(data) {
-    return axios.post('/user/follow', data);
+    return axios.patch(`/user/${data}/follow`);
 }
 
 function* follow(action) {
@@ -42,7 +42,7 @@ function* follow(action) {
         const result = yield call(followAPI, action.data);
         yield put({
             type : FOLLOW_SUCCESS,
-            data : action.data,
+            data : result.data,
         });
     } catch (err) {
         yield put({
@@ -54,15 +54,16 @@ function* follow(action) {
 
 //언 팔로우
 function unfollowAPI(data) {
-    return axios.post('/user/unfollow', data);
+    return axios.delete(`/user/${data}/unfollow`);
 }
 
 function* unfollow(action) {
     try {
+
         const result = yield call(unfollowAPI, action.data);
         yield put({
             type : UNFOLLOW_SUCCESS,
-            data : action.data,
+            data : result.data,
         });
     } catch (err) {
         yield put({

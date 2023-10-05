@@ -27,7 +27,7 @@ export const initialState = {
 
   changeNicknameLoading : false, // 닉네임 변경 시도중
   changeNicknameDone : false,
-  changeNicknameFailure : null,  
+  changeNicknameError : null,  
 
   me : null,
   signUpData : {},
@@ -128,7 +128,7 @@ export default (state = initialState, action) => {
       case FOLLOW_SUCCESS: 
         draft.followLoading = false;
         draft.followDone = true;
-        draft.me.Followings.push({ id : action.data });
+        draft.me.Followings.push({ id : action.data.UserId });
         break;
       case FOLLOW_FAILURE: 
         draft.followLoading =  false;
@@ -144,7 +144,7 @@ export default (state = initialState, action) => {
       case UNFOLLOW_SUCCESS: 
         draft.unfollowLoading = false;
         draft.unfollowDone = true;
-        draft.me.Followings = draft.me.Followings.filter((v) => v.id !== action.data);
+        draft.me.Followings = draft.me.Followings.filter((v) => v.id !== action.data.UserId);
         break;
       case UNFOLLOW_FAILURE : 
         draft.unfollowLoading =  false;
@@ -210,7 +210,7 @@ export default (state = initialState, action) => {
           break;
       case CHANGE_NICKNAME_FAILURE : 
           draft.changeNicknameLoading = false;
-          draft.changeNicknameData =  action.error;
+          draft.changeNicknameError=  action.error;
           break;
     
       // 게시글 등록시 사용자 dummy Data에 동기화

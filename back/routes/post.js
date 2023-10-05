@@ -116,6 +116,6 @@ router.delete('/:postId', async (req, res, next) => { // DELETE //post/1
             console.error(err);
             next(err)
         }
-})
+});
 
 module.exports = router;

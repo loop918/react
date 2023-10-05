@@ -25,8 +25,8 @@ module.exports = (sequelize, DataTypes) => {
 
         // through : 테이블 이름 변경, foreignKey : 컬럼 이름 변경
         db.User.belongsToMany(db.Post, { through : 'Like', as : 'Liked' }); // 좋아요. → UserId, PostId
-        db.User.belongsToMany(db.User, { through : 'Follow', as : 'Followers'  ,foreignKey : 'FollowingId' }); // 팔로윙
-        db.User.belongsToMany(db.User, { through : 'Follow', as : 'Followings' ,foreignKey : 'FollowerId'  }); // 팔로워
+        db.User.belongsToMany(db.User, { through : 'Follow', as : 'Followers'  , foreignKey : 'FollowingId' }); // 팔로윙
+        db.User.belongsToMany(db.User, { through : 'Follow', as : 'Followings' , foreignKey : 'FollowerId'  }); // 팔로워
     };
     return User;
 }
