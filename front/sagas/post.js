@@ -7,7 +7,9 @@ import {
     ADD_COMMENT_REQUEST, ADD_COMMENT_SUCCESS, ADD_COMMENT_FAILURE, 
     LOAD_POSTS_REQUEST, LOAD_POSTS_SUCCESS, LOAD_POSTS_FAILURE, 
     LIKE_POST_REQUEST, LIKE_POST_SUCCESS, LIKE_POST_FAILURE,
-    UNLIKE_POST_REQUEST, UNLIKE_POST_SUCCESS, UNLIKE_POST_FAILURE,
+    UNLIKE_POST_REQUEST, UNLIKE_POST_SUCCESS, UNLIKE_POST_FAILURE, 
+    UPLOAD_IMAGES_REQUEST, UPLOAD_IMAGES_SUCCESS, UPLOAD_IMAGES_FAILURE,
+    RETWEET_REQUEST, RETWEET_SUCCESS, RETWEET_FAILURE
 } from '../reducers/post';
 
 import {
@@ -31,14 +33,15 @@ function* loadPosts(action){
     } catch (err) {
         yield put({
             type : LOAD_POSTS_FAILURE,
-            data : err.response.data,
+            error : err.response.data,
         })
     }    
 }
 
 // 게시글 추가
+// formData를 받을시 {content : data} X →   data로 명시!
 function addPostAPI(data) {
-    return axios.post('/post', { content : data });
+    return axios.post('/post', data);
 }
 
 function* addPost(action) {
@@ -58,7 +61,7 @@ function* addPost(action) {
         console.error(err);
         yield put({
             type :  ADD_POST_FAILURE,
-            data : err.response.data
+            error : err.response.data
         })
     }
 }
@@ -82,7 +85,7 @@ function* removePost(action) {
     } catch (err) {
         yield put({
             type : REMOVE_POST_FAILURE,
-            data : err.response.data
+            error : err.response.data
         })
     }
 }
@@ -103,7 +106,7 @@ function* addComment(action) {
         console.error(err);
         yield put({
             type :  ADD_COMMENT_FAILURE,
-            data : err.response.data
+            error : err.response.data
         })
     }
 }
@@ -124,7 +127,7 @@ function* likePost(action) {
         console.error(err);
         yield put({
             type :  LIKE_POST_FAILURE,
-            data : err.response.data
+            error : err.response.data
         })
     }
 }
@@ -145,7 +148,48 @@ function* unlikePost(action) {
         console.error(err);
         yield put({
             type :  UNLIKE_POST_FAILURE,
-            data : err.response.data
+            error : err.response.data
+        })
+    }
+}
+
+// 이미지 업로드
+function uploadImagesAPI(data) {
+    return axios.post(`/post/images`, data);  // formData는 반드시 그대로 data 로 기재한다. {image : data} 이런식으로 전달시, json 형식으로 변환됨!!!!
+}
+
+function* uploadImages(action) {
+    try {
+        const result = yield call(uploadImagesAPI, action.data);
+        yield put({
+            type : UPLOAD_IMAGES_SUCCESS,
+            data : result.data,
+        })
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type :  UPLOAD_IMAGES_FAILURE,
+            error : err.response.data
+        })
+    }
+}
+
+function retweetAPI(data) {
+    return axios.post(`/post/${data}/retweet`); 
+}
+
+function* retweet(action) {
+    try {
+        const result = yield call(retweetAPI, action.data);
+        yield put({
+            type : RETWEET_SUCCESS,
+            data : result.data,
+        })
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type :  RETWEET_FAILURE,
+            error : err.response.data
         })
     }
 }
@@ -174,6 +218,14 @@ function* watchAddComment() {
     yield takeLatest(ADD_COMMENT_REQUEST, addComment);
 }
 
+function* watchUploadImages() {
+    yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
+}
+
+function* watchRetweet() {
+    yield takeLatest(RETWEET_REQUEST, retweet);
+}
+
 // PostSaga EventListener.
 export default function* postSaga() {
     yield all([
@@ -183,5 +235,7 @@ export default function* postSaga() {
         fork(watchLoadPosts),
         fork(watchLikePost),
         fork(watchUnlikePost),
+        fork(watchUploadImages),
+        fork(watchRetweet),
     ])
 }

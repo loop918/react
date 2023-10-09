@@ -10,7 +10,14 @@ import AppLayout from '../components/AppLayout';
 const Home = () => {
   const dispatch = useDispatch();
   const { me } = useSelector(state => state.user);
-  const { mainPosts , hasMorePost, loadPostsLoading} = useSelector(state => state.post);
+  const { mainPosts , hasMorePost, loadPostsLoading, retweetError} = useSelector(state => state.post);
+
+  // 리트윗 에러 알림.
+  useEffect(() => {
+    if(retweetError) {
+      alert(retweetError);
+    }
+  }, [retweetError])
 
   // 내 정보 가져오기. (미해결..)
   /*

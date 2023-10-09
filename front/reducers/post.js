@@ -29,6 +29,14 @@ export const initialState = {
   addCommentLoading : false,
   addCommentDone : false,
   addCommentError : null,
+
+  uploadImagesLoading : false,
+  uploadImagesDone : false,
+  uploadImagesError : null,  
+
+  retweetLoading : false,
+  retweetDone : false,
+  retweetError : null,    
 };
 
 // ACTION 
@@ -55,6 +63,16 @@ export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
 export const ADD_COMMENT_REQUEST = 'ADD_COMMENT_REQUEST';
 export const ADD_COMMENT_SUCCESS = 'ADD_COMMENT_SUCCESS';
 export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
+
+export const UPLOAD_IMAGES_REQUEST = 'UPLOAD_IMAGES_REQUEST';
+export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
+export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
+
+export const REMOVE_IMAGE = 'REMOVE_IMAGE';
+
+export const RETWEET_REQUEST = 'RETWEET_REQUEST';
+export const RETWEET_SUCCESS = 'RETWEET_SUCCESS';
+export const RETWEET_FAILURE = 'RETWEET_FAILURE';
 
 export const likePost = (data) => {
   return {
@@ -153,6 +171,7 @@ export default (state = initialState, action) => {
         draft.addPostLoading = false;
         draft.addPostDone = true;
         draft.mainPosts.unshift(action.data);
+        draft.imagePaths = []; // 이미지 업로드 후 , imagePath 배열 초기화.
         break;
       case ADD_POST_FAILURE : 
         draft.addPostLoading = false;
@@ -190,6 +209,41 @@ export default (state = initialState, action) => {
           draft.addPostError = action.error;
           break;
 
+          
+      // 이미지 업로드
+      case UPLOAD_IMAGES_REQUEST : 
+          draft.uploadImagesLoading = true;
+          draft.uploadImagesError = null;
+          break;
+      case UPLOAD_IMAGES_SUCCESS :  
+          draft.imagePaths = action.data;
+          draft.uploadImagesLoading = false;
+          draft.uploadImagesDone = true;
+          break;
+      case UPLOAD_IMAGES_FAILURE : 
+          draft.uploadImagesLoading = false;
+          draft.uploadImagesError = action.error;
+          break;          
+
+      // 이미지 제거
+      case REMOVE_IMAGE : 
+        draft.imagePaths = draft.imagePaths.filter((v,i) => i.id !== action.index );
+        break;
+
+      // 리트윗
+      case RETWEET_REQUEST : 
+          draft.retweetLoading = true;
+          draft.retweetError = null;
+          break;
+      case RETWEET_SUCCESS :  
+          draft.retweetLoading = false;
+          draft.mainPosts.unshift(action.data);
+          draft.retweetDone = true;
+          break;
+      case RETWEET_FAILURE : 
+          draft.retweetLoading = false;
+          draft.retweetError = action.error;
+          break;     
 
       default: 
           //return state;

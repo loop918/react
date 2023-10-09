@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -50,6 +51,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// __dirname → back 폴더를 나타냄  즉, path.join( __dirname , 'uploads' ) → back/uploads 
+// '/' 는 localhost:3065를 표현.
+app.use( '/' ,express.static( path.join( __dirname , 'uploads' )));
 app.get('/', (req,res) => {
     res.send('hello express'); 
 });
