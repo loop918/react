@@ -41,8 +41,11 @@ const Home = () => {
       // 현재 스크롤 위치, 전체중 스크롤 높이 위치, 총 스크롤 높이 위치
       if ( window.scrollY + document.documentElement.clientHeight > document.documentElement.scrollHeight -300 ) {
         if (hasMorePost && !loadPostsLoading) {
+            // 마지막 게시글의 LastId 조회
+            const lastId = mainPosts[mainPosts.length - 1]?.id;
             dispatch({
               type : LOAD_POSTS_REQUEST,
+              lastId,
             })
         }
       }
@@ -53,8 +56,7 @@ const Home = () => {
     return () => {
       window.removeEventListener('scroll', onScroll);
     }
-
-  },[hasMorePost, loadPostsLoading])
+  }, [hasMorePost, loadPostsLoading, mainPosts ]);
   
   return (
     <AppLayout>

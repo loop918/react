@@ -18,14 +18,15 @@ import {
 } from '../reducers/user';
 
 // 게시글 불러오기
-function loadPostsAPI(data) {
-    return axios.get('/posts', data);
+// GET 방식은 queryString으로 Data를 전달 해야함.
+function loadPostsAPI(lastId) {
+    return axios.get(`/posts?lastId=${lastId || 0}`); // lastId 가 undefined 일 경우 0 으로 처리.
 }
 
 function* loadPosts(action){
     console.log("sagas/post.js -> function* roadPosts(action)");
     try {
-        const result = yield call(loadPostsAPI, action.data)
+        const result = yield call(loadPostsAPI, action.lastId)
         yield put({
             type : LOAD_POSTS_SUCCESS,
             data: result.data,

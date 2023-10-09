@@ -1,12 +1,22 @@
 const express = require('express');
+const { Op } = require('sequelize'); // 시퀄라이즈 operator
 const {Post, Image, User, Comment} = require('../models');
 
 const router = express.Router();
 
-router.get('/', async(req,res,next) => { // GET /posts
+// 게시글 전체 가져오기.
+router.get('/', async(req, res, next) => { // GET /posts
     try {
+        
+        console.log(parseInt(req.query.lastId, 10));
+        const where = {};
+        if(parseInt(req.query.lastId, 10)) { // 초기 로딩이 아닐 때.
+            where.id = { [Op.lt] : parseInt(req.query.lastId, 10) } // 조건 →  id가 lastId 보다 10 작은 것들! (현재, 내림차순 기준임 - 최신순)
+        } 
+
         const posts = await Post.findAll({
             limit : 10, // 가져올 갯수
+            where,
             order : [
                 ['createdAt', 'DESC'],
                 [Comment, 'createdAt', 'DESC'],
@@ -37,8 +47,9 @@ router.get('/', async(req,res,next) => { // GET /posts
                 }]
             }],
         })
-        console.log(posts);
+
         return res.status(200).json(posts);
+        
     } catch (error) {
         console.error(error);
         next(error);
