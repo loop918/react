@@ -6,6 +6,7 @@ import {
     REMOVE_POST_SUCCESS, REMOVE_POST_REQUEST, REMOVE_POST_FAILURE,
     ADD_COMMENT_REQUEST, ADD_COMMENT_SUCCESS, ADD_COMMENT_FAILURE, 
     LOAD_POSTS_REQUEST, LOAD_POSTS_SUCCESS, LOAD_POSTS_FAILURE, 
+    LOAD_POST_REQUEST, LOAD_POST_SUCCESS, LOAD_POST_FAILURE, 
     LIKE_POST_REQUEST, LIKE_POST_SUCCESS, LIKE_POST_FAILURE,
     UNLIKE_POST_REQUEST, UNLIKE_POST_SUCCESS, UNLIKE_POST_FAILURE, 
     UPLOAD_IMAGES_REQUEST, UPLOAD_IMAGES_SUCCESS, UPLOAD_IMAGES_FAILURE,
@@ -34,6 +35,25 @@ function* loadPosts(action){
     } catch (err) {
         yield put({
             type : LOAD_POSTS_FAILURE,
+            error : err.response.data,
+        })
+    }    
+}
+
+function loadPostAPI(data) {
+    return axios.get(`/post/${data}`); // lastId 가 undefined 일 경우 0 으로 처리.
+}
+
+function* loadPost(action){
+    try {
+        const result = yield call(loadPostAPI, action.data)
+        yield put({
+            type : LOAD_POST_SUCCESS,
+            data: result.data,
+        })
+    } catch (err) {
+        yield put({
+            type : LOAD_POST_FAILURE,
             error : err.response.data,
         })
     }    
@@ -207,6 +227,10 @@ function* watchLoadPosts() {
     yield throttle(2000, LOAD_POSTS_REQUEST, loadPosts);
 }
 
+function* watchLoadPost() {
+    yield throttle(2000, LOAD_POST_REQUEST, loadPost);
+}
+
 function* watchAddPost() {
     yield takeLatest(ADD_POST_REQUEST, addPost);
 }
@@ -234,6 +258,7 @@ export default function* postSaga() {
         fork(watchAddComment),
         fork(watchRemovePost),
         fork(watchLoadPosts),
+        fork(watchLoadPost),
         fork(watchLikePost),
         fork(watchUnlikePost),
         fork(watchUploadImages),

@@ -2,6 +2,7 @@ import {produce} from 'immer';
 
 export const initialState = {
   mainPosts: [],
+  singlePost : [],
   imagePaths: [],
 
   hasMorePost : true, // 인피니티 스크롤
@@ -17,6 +18,10 @@ export const initialState = {
   loadPostsLoading : false,
   loadPostsDone : false,
   loadPostsError : null,
+
+  loadPostLoading : false,
+  loadPostDone : false,
+  loadPostError : null,
 
   addPostLoading : false,
   addPostDone : false,
@@ -51,6 +56,10 @@ export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
 export const LOAD_POSTS_REQUEST = 'LOAD_POSTS_REQUEST';
 export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
 export const LOAD_POSTS_FAILURE = 'LOAD_POSTS_FAILURE';
+
+export const LOAD_POST_REQUEST = 'LOAD_POST_REQUEST';
+export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
+export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
 
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
@@ -144,7 +153,7 @@ export default (state = initialState, action) => {
         draft.unlikePostError = action.error;
         break;
 
-      // 글 추가
+      // .전체글 불러오기.
       case LOAD_POSTS_REQUEST : 
         draft.loadPostsLoading = true;
         draft.loadPostsDone = false;
@@ -153,12 +162,28 @@ export default (state = initialState, action) => {
       case LOAD_POSTS_SUCCESS : 
         draft.loadPostsLoading = false;
         draft.loadPostsDone = true;
-        draft.mainPosts = action.data.concat(action.data); // 기존 게시글에 추가.
+        draft.mainPosts = draft.mainPosts.concat(action.data); // 기존 게시글에 추가.
         draft.hasMorePost = action.data.length === 10;
         break;
       case LOAD_POSTS_FAILURE : 
         draft.loadPostsLoading = false;
         draft.loadPostsError = action.error;        
+        break;
+
+      // 특정글 불러오기.
+      case LOAD_POST_REQUEST : 
+        draft.loadPostLoading = true;
+        draft.loadPostDone = false;
+        draft.loadPostError = null;
+        break;
+      case LOAD_POST_SUCCESS : 
+        draft.loadPostLoading = false;
+        draft.loadPostDone = true;
+        draft.singlePost = action.data // 특정 게시글.
+        break;
+      case LOAD_POST_FAILURE : 
+        draft.loadPostLoading = false;
+        draft.loadPostError = action.error;        
         break;
 
       // 글 추가

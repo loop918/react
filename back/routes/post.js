@@ -141,6 +141,55 @@ router.post('/:postId/comment', isLoggedIn,  async (req, res, next) => {
     }
 });
 
+// 특정 게시글 가져오기
+router.get('/:postId' , async (req, res, next) => {
+    try {
+
+        const post = await Post.findOne({
+            where : { id : req.params.postId},
+        })
+        if(!post) {
+            return res.status(404).send('존재하지 않는 게시글 입니다.');
+        }
+
+        const fullPost = await Post.findOne({
+            where : { id : post.id },
+            include : [{
+                model : Post,
+                as : 'Retweet',
+                include : [{
+                    model : User,
+                    attributes : ['id', 'nickname'],
+                },{
+                    model : Image,
+                }]
+            },{
+                model : User,
+                attributes : ['id', 'nickname'],
+            },{
+                model : Image,
+                
+            },{
+                model : Comment,
+                include : [{
+                    model : User,
+                    attributes : ['id', 'nickname'],
+                }],
+            },{
+                model : User,
+                as : 'Likers',
+                attributes : ['id'],
+            }],
+        });
+        res.status(200).json(fullPost);
+
+    } catch(err) {
+        console.error(err);
+        next(err);
+    }
+});
+
+
 router.patch('/:postId/like', async (req, res, next)=> { // PATCH /post/${data}/like
     try {
         const exPost = await Post.findOne({ where : { id : req.params.postId }})
@@ -167,7 +216,7 @@ router.delete('/:postId/unlike', async (req, res, next)=> { // DELETE /post/${da
 
     } catch(err) {
         console.error(err);
-        next(err)
+        next(err);
     }
 });
 

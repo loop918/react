@@ -19,14 +19,15 @@ function loadMyInfoAPI() {
     return axios.get('/user');
 }
 
-function* loadMyInfo(action) {
+function* loadMyInfo() {
     try {
-        const result = yield call(loadMyInfoAPI, action.data);
-        yield push({
+        const result = yield call(loadMyInfoAPI);
+        yield put({
             type : LOAD_MY_INFO_SUCCESS,
             data : result.data,
         })
     } catch (error) {
+        console.error(error);
         yield put({
             type : LOAD_MY_INFO_FAILURE,
             error : error.response.data,

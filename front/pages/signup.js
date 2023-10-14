@@ -4,9 +4,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import Head from 'next/head';
 import Router from 'next/router';
 
+import { END } from 'redux-saga';
+import axios from 'axios';
+
 import {SIGN_UP_REQUEST } from '../reducers/user';
 import AppLayout from '../components/AppLayout';
 import useInput from '../hooks/useInput';
+import wrapper from '../store/configureStore';
+
 
 const Signup = () => {
 
@@ -117,5 +122,24 @@ const Signup = () => {
     );
 
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
+  console.log('sever side rendering start!');
+  // 서버사이드 렌더링시. 쿠키정보 넣어주기.
+   const cookie = context.req ? context.req.headers.cookie : '';
+   axios.defaults.headers.Cookie = '';
+   if( context.req && cookie) {
+     axios.defaults.headers.Cookie = cookie;
+   } 
+   // 내 정보 가져오기.
+   context.store.dispatch({
+     type: LOAD_MY_INFO_REQUEST,
+   });
+
+   context.store.dispatch(END);
+   console.log('sever side rendering end!'); 
+   await context.store.sagaTask.toPromise();
+ });
+
 
 export default Signup;
