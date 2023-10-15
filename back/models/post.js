@@ -1,23 +1,57 @@
-module.exports = (sequelize, DataTypes) => {
-    const Post = sequelize.define('Post', { // MySQL 에는 posts 테이블 생성.
-        // id가 기본적으로  들어있다.
-        content : {
-            type : DataTypes.TEXT,
-            allowNull : false,
-        }, 
-        // RetweetId
-    },{
-        charset : 'utf8mb4',
-        collate : 'utf8mb4_general_ci', // 이모티콘 저장.
-    });
+const DataTypes = require('sequelize');
+const { Model } = DataTypes;
 
-    Post.associate = (db) => {
-        db.Post.belongsTo(db.User); // 게시글은 작성자에 속해있다.  // post.addUser, post.getUser, post.setUser
-        db.Post.belongsToMany(db.Hashtag, { through : 'PostHashtag'}); // 다대다 관계  // post.addHashtags, post.getHashtags, post.setHashtags
-        db.Post.hasMany(db.Comment);  //post.addComment , post.getComments , post.setComments
-        db.Post.hasMany(db.Image); // post.addImages, post.getImages, post.setImages
-        db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' });  // 좋아요.  → UserId, PostId  // post.addLikers, postRemoveLikers
-        db.Post.belongsTo(db.Post, { as : 'Retweet'}); // RetweetId → 일대다 관계    // post.addRetweet
-    };
-    return Post;
-}
+module.exports = class Post extends Model {
+  static init(sequelize) {
+    return super.init({
+      // id가 기본적으로 들어있다.
+      content: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      // RetweetId
+    }, {
+      modelName: 'Post',
+      tableName: 'posts',
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_general_ci', // 이모티콘 저장
+      sequelize,
+    });
+  }
+  static associate(db) {
+    db.Post.belongsTo(db.User); // post.addUser, post.getUser, post.setUser
+    db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' }); // post.addHashtags
+    db.Post.hasMany(db.Comment); // post.addComments, post.getComments
+    db.Post.hasMany(db.Image); // post.addImages, post.getImages
+    db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' }) // post.addLikers, post.removeLikers
+    db.Post.belongsTo(db.Post, { as: 'Retweet' }); // post.addRetweet
+  }
+};
+
+/*
+const Sequelize = require('sequelize');
+const env =  process.env.NODE_ENV || 'development'; // 기본 연산자
+const config = require('../config/config')[env]; 
+const db = {};
+
+const sequelize = new Sequelize(config.database, config.username, config.password, config);
+
+// Model
+db.Comment = require('./comment')(sequelize, Sequelize);
+db.User = require('./user')(sequelize, Sequelize);
+db.Post = require('./post')(sequelize, Sequelize);
+db.Image = require('./image')(sequelize, Sequelize);
+db.Hashtag = require('./hashtag')(sequelize, Sequelize);
+
+// associate 연결
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+module.exports = db;
+*/

@@ -12,6 +12,9 @@ import PostCardContent from './PostCardContent';
 import PostImages from './PostImages';
 import FollowButton from './FollowButton';
 
+import moment from 'moment';
+moment.locale('ko');
+
 const CardWrapper = styled.div`
   margin-bottom: 20px;
 `;
@@ -103,6 +106,7 @@ const PostCard = ({ post }) => {
               <Card
                   cover={post?.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}
               >
+              <div style={{ float : 'right' }}> {moment(post.createdAt).format('YYYY.MM.DD')} </div>  
               <Card.Meta
                 avatar={(
                   <Link href={`/user/${post.Retweet.User.id}`}>
@@ -117,6 +121,9 @@ const PostCard = ({ post }) => {
             </Card>
             )
           : (
+            <>
+              <div style={{ float : 'right' }}> {moment(post.createdAt).format('YYYY.MM.DD')} </div>  
+
               <Card.Meta
                 avatar={(
                    <Link href={`/user/${post.User.id}`}>
@@ -128,6 +135,7 @@ const PostCard = ({ post }) => {
                 title={post.User.nickname}
                 description={<PostCardContent postData={post.content} />}
               />
+            </>
           )}
       </Card>
       {commentFormOpened && (
