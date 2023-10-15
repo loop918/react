@@ -14,7 +14,7 @@ const passport = require('passport');
 const userRouter = require('./routes/user');
 const postRouter = require('./routes/post');
 const postsRouter = require('./routes/posts');
-
+const hashtagRouter  = require('./routes/hashtag');
 // db 
 const db = require('./models');
 // passport
@@ -58,9 +58,10 @@ app.get('/', (req,res) => {
     res.send('hello express'); 
 });
 
-app.use('/user', userRouter); // User 라우터
-app.use('/post', postRouter); // Post 라우터
-app.use('/posts', postsRouter); // Posts 라우터
+app.use('/user', userRouter); 
+app.use('/post', postRouter); 
+app.use('/posts', postsRouter);
+app.use('/hashtag', hashtagRouter); 
 
 // server port 3065
 app.listen(3065, () => {

@@ -124,7 +124,6 @@ const Signup = () => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
-  console.log('sever side rendering start!');
   // 서버사이드 렌더링시. 쿠키정보 넣어주기.
    const cookie = context.req ? context.req.headers.cookie : '';
    axios.defaults.headers.Cookie = '';
@@ -137,7 +136,6 @@ export const getServerSideProps = wrapper.getServerSideProps(async (context) => 
    });
 
    context.store.dispatch(END);
-   console.log('sever side rendering end!'); 
    await context.store.sagaTask.toPromise();
  });
 

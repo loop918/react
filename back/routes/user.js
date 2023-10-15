@@ -1,14 +1,14 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
+const { Op } = require('sequelize'); // 시퀄라이즈 operator
 const router = express.Router();
 
-const { User, Post } = require('../models');
+const { User, Post, Image, Comment, Hashtag } = require('../models');
 const { isLoggedIn, isNotLoggedIn } =  require('./middlewares');
 
 router.get('/', async (req, res, next) => { // GET /user
     try {
-        console.log(req.user);
         if (req.user) {
             const fullUserWithoutPassword = await User.findOne({
                 where : { id : req.user.id },
@@ -31,6 +31,90 @@ router.get('/', async (req, res, next) => { // GET /user
             return res.status(200).json(null);
         }
 
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+});
+
+router.get('/:id', async (req, res, next) => { // GET /user/3
+    try {
+      const fullUserWithoutPassword = await User.findOne({
+        where: { id: req.params.id },
+        attributes: {
+          exclude: ['password']
+        },
+        include: [{
+          model: Post,
+          attributes: ['id'],
+        }, {
+          model: User,
+          as: 'Followings',
+          attributes: ['id'],
+        }, {
+          model: User,
+          as: 'Followers',
+          attributes: ['id'],
+        }]
+      })
+      if (fullUserWithoutPassword) {
+        const data = fullUserWithoutPassword.toJSON();
+        data.Posts = data.Posts.length;
+        data.Followings = data.Followings.length;
+        data.Followers = data.Followers.length;
+        res.status(200).json(data);
+      } else {
+        res.status(404).json('존재하지 않는 사용자입니다.');
+      }
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  });
+
+router.get('/:userId/posts', async(req, res, next) => { // GET /posts
+    try {
+        const where = { UserId : req.params.userId };
+        if(parseInt(req.query.lastId, 10)) { // 초기 로딩이 아닐 때.
+            where.id = { [Op.lt] : parseInt(req.query.lastId, 10) } // 조건 →  id가 lastId 보다 10 작은 것들! (현재, 내림차순 기준임 - 최신순)
+        } 
+
+        const posts = await Post.findAll({
+            limit : 10, // 가져올 갯수
+            where,
+            order : [
+                ['createdAt', 'DESC'],
+                [Comment, 'createdAt', 'DESC'],
+            ],
+            include : [{
+                model : User, // 게시글 작성자
+                attributes : ['id', 'nickname'],
+            }, {
+                model : Image,
+            }, {
+                model : Comment,
+                include : [{
+                    model : User, // 댓글 작성자
+                    attributes : ['id', 'nickname'],
+                }]
+            }, {
+                model : User, // 좋아요 누른사람
+                as : 'Likers',
+                attributes : ['id'],
+            }, {
+                model : Post,
+                as : 'Retweet',
+                include : [{
+                    model : User,
+                    attributes : ['id', 'nickname'],
+                },{
+                    model : Image,
+                }]
+            }],
+        })
+
+        return res.status(200).json(posts);
+        
     } catch (error) {
         console.error(error);
         next(error);

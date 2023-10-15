@@ -1,10 +1,10 @@
 const express = require('express');
-const { Op } = require('sequelize'); // 시퀄라이즈 operator
-const {Post, Image, User, Comment} = require('../models');
 const router = express.Router();
+const { Op } = require('sequelize'); // 시퀄라이즈 operator
+const { User, Post, Image, Comment, Hashtag } = require('../models');
+const { isLoggedIn, isNotLoggedIn } =  require('./middlewares');
 
-// 게시글 전체 가져오기.
-router.get('/', async(req, res, next) => { // GET /posts
+router.get('/:hashtag', async(req, res, next) => { // GET /hashtag/노드
     try {
         const where = {};
         if(parseInt(req.query.lastId, 10)) { // 초기 로딩이 아닐 때.
@@ -14,11 +14,11 @@ router.get('/', async(req, res, next) => { // GET /posts
         const posts = await Post.findAll({
             limit : 10, // 가져올 갯수
             where,
-            order : [
-                ['createdAt', 'DESC'],
-                [Comment, 'createdAt', 'DESC'],
-            ],
+            order : [['createdAt', 'DESC']],
             include : [{
+                model : Hashtag,
+                where : { name : decodeURIComponent(req.params.hashtag) },
+            }, {
                 model : User, // 게시글 작성자
                 attributes : ['id', 'nickname'],
             }, {
@@ -54,3 +54,4 @@ router.get('/', async(req, res, next) => { // GET /posts
 });
 
 module.exports = router;
+

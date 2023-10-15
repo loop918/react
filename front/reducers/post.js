@@ -61,6 +61,14 @@ export const LOAD_POST_REQUEST = 'LOAD_POST_REQUEST';
 export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
 export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
 
+export const LOAD_USER_POSTS_REQUEST = 'LOAD_USER_POSTS_REQUEST';
+export const LOAD_USER_POSTS_SUCCESS = 'LOAD_USER_POSTS_SUCCESS';
+export const LOAD_USER_POSTS_FAILURE = 'LOAD_USER_POSTS_FAILURE';
+
+export const LOAD_HASHTAG_POSTS_REQUEST = 'LOAD_HASHTAG_POSTS_REQUEST';
+export const LOAD_HASHTAG_POSTS_SUCCESS = 'LOAD_HASHTAG_POSTS_SUCCESS';
+export const LOAD_HASHTAG_POSTS_FAILURE = 'LOAD_HASHTAG_POSTS_FAILURE';
+
 export const ADD_POST_REQUEST = 'ADD_POST_REQUEST';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
 export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
@@ -153,19 +161,25 @@ export default (state = initialState, action) => {
         draft.unlikePostError = action.error;
         break;
 
-      // .전체글 불러오기.
+      // 전체글 불러오기 (전체글 , 특정 사용자, 해쉬태그)
       case LOAD_POSTS_REQUEST : 
+      case LOAD_USER_POSTS_REQUEST :
+      case LOAD_HASHTAG_POSTS_REQUEST :
         draft.loadPostsLoading = true;
         draft.loadPostsDone = false;
         draft.loadPostsError = null;
         break;
       case LOAD_POSTS_SUCCESS : 
+      case LOAD_USER_POSTS_SUCCESS :
+      case LOAD_HASHTAG_POSTS_SUCCESS :  
         draft.loadPostsLoading = false;
         draft.loadPostsDone = true;
         draft.mainPosts = draft.mainPosts.concat(action.data); // 기존 게시글에 추가.
         draft.hasMorePost = action.data.length === 10;
-        break;
-      case LOAD_POSTS_FAILURE : 
+        break;  
+      case LOAD_POSTS_FAILURE :
+      case LOAD_USER_POSTS_FAILURE :
+      case LOAD_HASHTAG_POSTS_FAILURE : 
         draft.loadPostsLoading = false;
         draft.loadPostsError = action.error;        
         break;

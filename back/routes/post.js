@@ -38,7 +38,6 @@ const upload = multer({
 // 이미지 파일을 안올리고 text 형식만 있으면 upload.none() 하면됨.!
 router.post('/images', isLoggedIn ,  upload.array('image') , (req, res, next) => {
     try {
-        console.log(req.files); 
         res.json(req.files.map((v) => v.filename)); // 파일 업로드 된 주소(파일명) 리턴.
 
     } catch(err) {
@@ -132,7 +131,6 @@ router.post('/:postId/comment', isLoggedIn,  async (req, res, next) => {
                 attributes : ['id', 'nickname'],
             }],
         })
-        console.log(fullComment);
         return res.status(201).json(fullComment);
 
     } catch (error) {

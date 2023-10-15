@@ -4,7 +4,6 @@ const local = require("./local");
 
 module.exports = () => {
   passport.serializeUser((user, done) => {
-    console.log('로그인 passport.serializeUser');
     done(null, user.id);
   });
   passport.deserializeUser(async (id, done) => {
@@ -12,7 +11,6 @@ module.exports = () => {
       const user = await User.findOne({  
         where: { id },
       });
-      console.log('로그아웃 passport.deserializeUser');
       done(null, user);
     } catch (error) {
       console.error(error);
