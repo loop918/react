@@ -1,9 +1,10 @@
-import React, { useState, useCallback ,useEffect} from 'react';
+import React, { useState, useCallback , useEffect} from 'react';
 import { Card, Button, Avatar, Popover, List, Comment } from 'antd';
-import PropTypes from 'prop-types';
 import { RetweetOutlined, HeartTwoTone, HeartOutlined, MessageOutlined, EllipsisOutlined } from '@ant-design/icons';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Link from 'next/link';
+
 import { useSelector , useDispatch} from 'react-redux';
 import { REMOVE_POST_REQUEST, LIKE_POST_REQUEST, UNLIKE_POST_REQUEST , RETWEET_REQUEST } from '../reducers/post';
 import CommentForm from './CommentForm';
@@ -103,7 +104,13 @@ const PostCard = ({ post }) => {
                   cover={post?.Retweet.Images[0] && <PostImages images={post.Retweet.Images} />}
               >
               <Card.Meta
-                avatar={<Avatar>{post.Retweet.User.nickname[0]}</Avatar>}
+                avatar={(
+                  <Link href={`/user/${post.Retweet.User.id}`}>
+                        <a>
+                        <Avatar>{post.Retweet.User.nickname[0]}</Avatar>
+                      </a>
+                  </Link>
+                )}
                 title={post.Retweet.User.nickname}
                 description={<PostCardContent postData={post.Retweet.content} />}
               />
@@ -111,7 +118,13 @@ const PostCard = ({ post }) => {
             )
           : (
               <Card.Meta
-                avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
+                avatar={(
+                   <Link href={`/user/${post.User.id}`}>
+                      <a>
+                        <Avatar>{post.User.nickname[0]}</Avatar>
+                      </a>
+                    </Link>
+                  )}
                 title={post.User.nickname}
                 description={<PostCardContent postData={post.content} />}
               />
@@ -129,8 +142,10 @@ const PostCard = ({ post }) => {
                 <Comment
                   author={item.User.nickname}
                   avatar={(
-                    <Link href={{ pathname: '/user', query: { id: item.User.id } }} as={`/user/${item.User.id}`}>
-                      <a><Avatar>{item.User.nickname[0]}</Avatar></a>
+                    <Link href={`/user/${item.User.id}`}>
+                      <a>
+                        <Avatar>{item.User.nickname[0]}</Avatar>
+                      </a>
                     </Link>
                   )}
                   content={item.content}
