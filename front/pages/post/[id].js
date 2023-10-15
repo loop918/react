@@ -15,8 +15,13 @@ import PostCard from '../../components/PostCard';
 const Post = () => {
     const router = useRouter();
     const { id } = router.query;
-
     const { singlePost }  = useSelector((state) => state.post);
+
+    /*
+    if (router.isFallback) {
+        return <div>Loading...</div>
+    }
+    */
 
     return (
         <AppLayout>
