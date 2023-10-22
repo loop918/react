@@ -64,6 +64,6 @@ app.use('/posts', postsRouter);
 app.use('/hashtag', hashtagRouter); 
 
 // server port 3065
-app.listen(3065, () => {
+app.listen(80, () => {
     console.log("SERVER START :: → http://localhost:3065");
 });
