@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const dotenv = require('dotenv');
+const hpp = require('hpp');
+const helmet = require('helmet');
 dotenv.config();
 
 const morgan = require('morgan');
@@ -20,6 +22,14 @@ const db = require('./models');
 // passport
 const passportConfig = require('./passport');
 
+// morgan 개발, 배포 분기 (개발 환경 설정)
+if(process.env.NODE_ENV === 'production') {
+    app.use(morgan('combined'));
+    app.use(hpp());
+    app.use(helmet());
+} else {
+    app.use(morgan('dev'));
+}
 
 // db sequelize
 db.sequelize.sync()
@@ -30,11 +40,11 @@ db.sequelize.sync()
 
 app.use(morgan('dev'));
 app.use(cors({
-    origin : 'http://localhost:3060',
+    origin : ['http://localhost:3060','nordbird.com'],
     credentials : true, // 쿠키 전달 client -> server
 }));
-
 passportConfig();
+
 
 // json형식의 Data req.body에 분석후, 넣어주는 역할
 app.use(express.json());
@@ -65,5 +75,5 @@ app.use('/hashtag', hashtagRouter);
 
 // server port 3065
 app.listen(80, () => {
-    console.log("SERVER START :: → http://localhost:3065");
+    console.log("SERVER START :: → http://localhost:80");
 });
