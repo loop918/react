@@ -5,6 +5,7 @@ import Head from 'next/head';
 import {END} from 'redux-saga';
 import axios from 'axios';
 import useSWR, { useSWRInfinite } from 'swr';
+import { backURL } from '../config/config';
 
 import NicknameEditForm from '../components/NicknameEditForm';
 import AppLayout from '../components/AppLayout';
@@ -20,8 +21,8 @@ const Profile = () => {
   const [followersLimit, setFollowersLimit] = useState(3);
   const [followingsLimit, setFollowingsLimit] = useState(3);
   //swr
-  const { data : followersData , error : followersError } = useSWR(`http://localhost:3065/user/followers?limit=${followersLimit}`, fetcher); 
-  const { data : followingsData , error : followingsError } = useSWR(`http://localhost:3065/user/followings?limit=${followingsLimit}`, fetcher); 
+  const { data : followersData , error : followersError } = useSWR(`${backURL}/user/followers?limit=${followersLimit}`, fetcher); 
+  const { data : followingsData , error : followingsError } = useSWR(`${backURL}/user/followings?limit=${followingsLimit}`, fetcher); 
 
   useEffect(() => {
     if (!me ) {

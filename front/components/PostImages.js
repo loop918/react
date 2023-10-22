@@ -4,6 +4,8 @@ import { PlusOutlined } from '@ant-design/icons';
 
 import ImagesZoom from './ImagesZoom';
 
+import { backURL } from '../config/config';
+
 const PostImages = ({ images }) => {
   const [showImagesZoom, setShowImagesZoom] = useState(false);
 
@@ -18,7 +20,7 @@ const PostImages = ({ images }) => {
   if (images.length === 1) {
     return (
       <>
-        <img role="presentation" src={`http://localhost:3065/${images[0].src}`} alt={images[0].src} onClick={onZoom} />
+        <img role="presentation" src={`${backURL}/${images[0].src}`} alt={images[0].src} onClick={onZoom} />
         {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
       </>
     );
@@ -27,8 +29,8 @@ const PostImages = ({ images }) => {
     return (
       <>
         <div>
-          <img role="presentation" src={`http://localhost:3065/${images[0].src}`} alt={images[0].src} width="50%" onClick={onZoom} />
-          <img role="presentation" src={`http://localhost:3065/${images[1].src}`} alt={images[1].src} width="50%" onClick={onZoom} />
+          <img role="presentation" src={`${backURL}/${images[0].src}`} alt={images[0].src} width="50%" onClick={onZoom} />
+          <img role="presentation" src={`${backURL}/${images[1].src}`} alt={images[1].src} width="50%" onClick={onZoom} />
         </div>
         {showImagesZoom && <ImagesZoom images={images} onClose={onClose} />}
       </>
@@ -37,7 +39,7 @@ const PostImages = ({ images }) => {
   return (
     <>
       <div>
-        <img role="presentation" src={`http://localhost:3065/${images[0].src}`} alt={images[0].src} width="50%" onClick={onZoom} />
+        <img role="presentation" src={`${backURL}/${images[0].src}`} alt={images[0].src} width="50%" onClick={onZoom} />
         <div
           role="presentation"
           style={{ display: 'inline-block', width: '50%', textAlign: 'center', verticalAlign: 'middle' }}
