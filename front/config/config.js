@@ -1,0 +1,1 @@
+export const backURL ='51.20.121.231'; // 백엔드 IP

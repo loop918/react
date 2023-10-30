@@ -40,7 +40,7 @@ db.sequelize.sync()
 
 app.use(morgan('dev'));
 app.use(cors({
-    origin : ['http://localhost:3060','nordbird.com', 'http://13.53.170.39'],
+    origin : ['http://localhost:3060','nordbird.com', 'http://51.20.129.25'],
     credentials : true, // 쿠키 전달 client -> server
 }));
 passportConfig();
